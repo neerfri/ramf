@@ -12,9 +12,7 @@ module RAMF
       @name= klass.name
       @is_dynamic = is_dynamic
       @defined_members = []
-#      @transient_members = klass.respond_to?(:flex_transient_members) ? klass.flex_transient_members : []
-      @transient_members = options[:transient] ? options[:transient] : []
-#      puts "initialized flex reflection for: #{@name}"
+      @transient_members = options[:transient] || []
     end
     
     def members(scope = :default)
@@ -30,9 +28,7 @@ module RAMF
         
     def find_members(scope)
       members = @defined_members
-#      puts amf_scope_options.inspect
-      if (amf_scope_options[scope] &&
-          amf_scope_options[scope][:only])
+      if (amf_scope_options[scope] && amf_scope_options[scope][:only])
         members = amf_scope_options[scope][:only]
       elsif klass.respond_to?(:flex_members)
         members = klass.flex_members
