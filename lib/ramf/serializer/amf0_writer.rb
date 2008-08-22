@@ -6,7 +6,7 @@ module RAMF
       include RAMF::ReferenceTableUser
       
       def initialize(reference_table = nil)
-        register_reference_table(reference_table || ReferenceTable.new)
+        register_reference_table(reference_table)
         @U29_integer_mappings = {}
         @U32_double_mappings = {}
       end
