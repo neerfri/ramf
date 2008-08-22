@@ -19,10 +19,7 @@ class Class
   # end
   #this will define <tt>:encrypted_password, :encription_salt</tt> not
   #to be sent over amf.
-  #make sure they are not important to represent the 
-  #object when it come from flex.
-  #Not for exmple if you omit an attribute in active record and save it
-  #will be updated to the default value(nil?).
+  #Make sure they are not important to represent the object when it comes from amf.
   def flex_remoting_transient(*args)
     flex_remoting.transient_members += args.map {|v| v.to_sym}
   end
@@ -54,5 +51,21 @@ class Class
   #named SomeActionScriptClass
   def flex_alias(class_name)
     flex_remoting.name = class_name.to_s
+  end
+  
+  #This method defines members that are fixed with the object, which means
+  #they will use to define the class's signature during serialization.
+  #For Exmple:
+  # class User
+  #   flex_remoting_members :great_attribute, :important_attribute
+  # end
+  #this will define <tt>:great_attribute, :important_attribute</tt> to 
+  #always be sent over amf.
+  #
+  #Note that some classes can use other mechanisms to find sealed members,
+  #this is the most simple way to do so.
+  
+  def flex_remoting_members(*members)
+    flex_remoting.defined_members = members
   end
 end

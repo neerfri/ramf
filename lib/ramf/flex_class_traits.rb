@@ -2,37 +2,34 @@ module RAMF
   #The term 'traits' is used to describe the defining characteristics of a class. (amf3 spec document section 3.12)
   class FlexClassTraits
     
-    attr_reader :klass, :name, :is_dynamic, :members
-    attr_accessor :transient_members, :amf_scope_options
+    attr_reader :klass, :is_dynamic, :members
+    attr_accessor :transient_members, :amf_scope_options, :name
     
     def initialize(klass,is_dynamic, options = {})
       @klass = klass
       @amf_scope_options = {}
       @members = {}
       @name= klass.name
-      @is_dynamic = klass.respond_to?(:flex_dynamic?) ? klass.flex_dynamic? : true
+      @is_dynamic = is_dynamic
+      @defined_members = []
 #      @transient_members = klass.respond_to?(:flex_transient_members) ? klass.flex_transient_members : []
       @transient_members = options[:transient] ? options[:transient] : []
 #      puts "initialized flex reflection for: #{@name}"
-    end
-    
-    def name=(val)
-      if val=='' || val=='Object'
-        @name = ''
-      else
-        @name = val
-      end
     end
     
     def members(scope = :default)
       @members[scope] ||= find_members(scope)
     end
     
+    def defined_members=(members)
+      @defined_members = members.flatten.map {|v| v.to_sym}
+    end
+    
     ##############################################################
     private
         
     def find_members(scope)
-      members = []
+      members = @defined_members
 #      puts amf_scope_options.inspect
       if (amf_scope_options[scope] &&
           amf_scope_options[scope][:only])
