@@ -14,7 +14,6 @@ module RAMF
         self[:correlationId] = options[:message_id]
       end
       
-      #going for speed with these UUID's not neccessarily unique in space and time continue - um, word
       def rand_uuid
         [8,4,4,4,12].map {|n| rand_hex_3(n)}.join('-').to_s
       end
