@@ -1,6 +1,6 @@
 class Class
   
-  #returns the FlexReflection object of the class,
+  #returns the FlexClassTraits object of the class,
   #if it doesn't exist, it will create one.
   #
   # class Car
@@ -36,7 +36,7 @@ class Class
   #it will also set only :fullname and :nickname to be sent when
   #using <tt> render :amf=>@user_list, :scope=>:private </tt> 
   #
-  #Use can only set either :except or :only for each scope.
+  #Each scope can only be set with either :except or :only, not both.
   def flex_remoting_scope(scope, options)
     raise "only & except" if options[:only] && options[:except]
     flex_remoting.amf_scope_options[scope] = options
