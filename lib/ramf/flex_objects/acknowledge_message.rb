@@ -3,7 +3,7 @@ module RAMF
     class AcknowledgeMessage < FlexObject
       
       def initialize(options={})
-        super(:"flex.messaging.messages.AcknowledgeMessage")
+        super("flex.messaging.messages.AcknowledgeMessage".to_sym)
         self[:messageId] = rand_uuid
         self[:clientId] = options[:clientId] ||rand_uuid
         self[:destination] = nil
