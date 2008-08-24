@@ -9,6 +9,41 @@ module RAMF
         register_reference_table(reference_table)
       end
       
+      def read_value_type(stream)
+        marker = readU8(stream)
+        case marker
+        when AMF3_UNDEFINED
+          nil
+        when AMF3_NULL
+          nil
+        when AMF3_FALSE
+          false
+        when AMF3_TRUE
+          true
+        when AMF3_INTEGER
+          readU29(stream)
+        when AMF3_DOUBLE
+          read_double(stream)
+        when AMF3_STRING
+          readUTF_8_vr(stream)
+        when AMF3_XML_DOC
+          readU29X(stream)
+        when AMF3_XML
+          readU29X(stream)
+        when AMF3_DATE
+          readU29D(stream)
+        when AMF3_ARRAY
+          readU29A(stream)
+        when AMF3_OBJECT
+          readU29O(stream)
+        when AMF3_BYTE_ARRAY
+          readU29B(stream)
+        else
+          raise "unknown amf3 value marker 0x%02X" % marker
+        end
+      end
+
+      private
       def readU29(stream)
         result = 0
         4.times do |i|
@@ -49,16 +84,16 @@ module RAMF
       def readU29O(stream)
         member_count_or_ref = readU29(stream)
         if (member_count_or_ref & 0x01) == 0
-          readU29O_ref(member_count_or_ref>>1)
+          readU29O_ref(member_count_or_ref>>1) #The object is a reference
         elsif (member_count_or_ref & 0x02) == 0
-          readU29O_traits_ref(stream, member_count_or_ref>>2)
+          readU29O_traits_ref(stream, member_count_or_ref>>2) #the class is a reference, the object is new.
         elsif (member_count_or_ref & 0x04) == 0x04
           raise "can't read IExternalizable yet"
         elsif (member_count_or_ref & 0x08) == 0
-          #not a dynamic object
+          #new object of a non dynamic class 
           readU29O_traits(stream, member_count_or_ref>>4, false)
         else
-          #a dynamic object
+          #new object of a dynamic class 
           readU29O_traits(stream, member_count_or_ref>>4, true)
         end
       end
@@ -179,40 +214,6 @@ module RAMF
         readU29S(stream)
       end
       
-      def read_value_type(stream)
-        marker = readU8(stream)
-        case marker
-        when AMF3_UNDEFINED
-          nil
-        when AMF3_NULL
-          nil
-        when AMF3_FALSE
-          false
-        when AMF3_TRUE
-          true
-        when AMF3_INTEGER
-          readU29(stream)
-        when AMF3_DOUBLE
-          read_double(stream)
-        when AMF3_STRING
-          readUTF_8_vr(stream)
-        when AMF3_XML_DOC
-          readU29X(stream)
-        when AMF3_XML
-          readU29X(stream)
-        when AMF3_DATE
-          readU29D(stream)
-        when AMF3_ARRAY
-          readU29A(stream)
-        when AMF3_OBJECT
-          readU29O(stream)
-        when AMF3_BYTE_ARRAY
-          readU29B(stream)
-        else
-          raise "unknown amf3 value marker 0x%02X" % marker
-        end
-      end
-    
     
     end
   end

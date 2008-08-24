@@ -2,17 +2,27 @@ module RAMF
   #The term 'traits' is used to describe the defining characteristics of a class. (amf3 spec document section 3.12)
   class FlexClassTraits
     
-    attr_reader :klass, :is_dynamic, :members
-    attr_accessor :transient_members, :amf_scope_options, :name
+    KNOWN_CLASSES = {}
+    
+    attr_reader :klass, :is_dynamic, :members, :name
+    attr_accessor :transient_members, :amf_scope_options
     
     def initialize(klass,is_dynamic, options = {})
       @klass = klass
       @amf_scope_options = {}
       @members = {}
       @name= klass.name
+      
       @is_dynamic = is_dynamic
       @defined_members = []
       @transient_members = options[:transient] || []
+    end
+    
+    def name=(new_name)
+      raise("An ActionScript with that name already exists.") if KNOWN_CLASSES[new_name] && new_name!=@name
+      KNOWN_CLASSES.delete(@name)
+      @name = new_name
+      KNOWN_CLASSES[new_name] = klass
     end
     
     def members(scope = :default)

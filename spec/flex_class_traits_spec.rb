@@ -18,6 +18,11 @@ describe RAMF::FlexClassTraits do
     DummyClass.flex_remoting.members.should include(:some_attribute)
   end
   
+  it 'should raise an error when there is a duplicate ACtionScript class name' do
+    Object.flex_remoting
+    DummyClass.flex_remoting.name = "Object"
+  end
+  
   it 'should give you a smalll meal and a tight seat when you are in economy' do
     DummyClass.flex_remoting.members(:economy).should eql([:small_meal, :tight_seat])
   end
