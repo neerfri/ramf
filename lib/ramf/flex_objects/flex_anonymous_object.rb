@@ -1,13 +1,31 @@
 module RAMF
   module FlexObjects
+    
+    #This class is used to create objects that are anonymous flex objects.
+    #these objects are very much like a ruby hash but their attributes can be accessed
+    #via methods as well.
+    #
+    # some_object = RAMF::FlexObjects::FlexAnonymousObject.new
+    # => {}
+    # some_object.my_attribute = "Wow !"
+    # => "Wow !"
+    # some_object
+    # => {:my_attribute=>"Wow !"}
+    # some_object.my_attribute == some_object[:my_attribute]
+    # => true
+    #
     class FlexAnonymousObject < Hash
-      attr_accessor :remoting_copy
       
-      def initialize
-        @remoting_copy = {}
-        @remoting_copy[:name] = ""
+      flex_alias ""
+      
+      def method_missing(method_name,*args,&block)
+        method_name = method_name.to_s 
+        if method_name[method_name.length-1,1] == "="
+          self["#{method_name[0,method_name.length-1]}".to_sym] = args.first
+        else
+          self["#{method_name}".to_sym]
+        end
       end
-      
     end
   end
 end

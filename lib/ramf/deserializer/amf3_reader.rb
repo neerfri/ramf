@@ -1,9 +1,9 @@
 module RAMF
   module Deserializer
     class AMF3Reader
-      include RAMF::Constants
-      include RAMF::CommonReadWrite
-      include RAMF::ReferenceTableUser
+      include RAMF::IO::Constants
+      include RAMF::IO::CommonReadWrite
+      include RAMF::IO::ReferenceTableUser
       
       def initialize(reference_table = nil)
         register_reference_table(reference_table)
@@ -110,7 +110,7 @@ module RAMF
       def read_object_dynamic_members(stream, obj)
         member_name = readUTF_8_vr(stream)
         while (member_name != "") do #run until we get to the empty-string marker
-          obj[member_name.to_sym] = read_value_type(stream)
+          obj.send("#{member_name}=", read_value_type(stream))
           member_name = readUTF_8_vr(stream)
         end
         obj
@@ -118,38 +118,59 @@ module RAMF
       
       
       def readU29O_traits(stream, member_count,is_dynamic)
-        flex_class = store :class do
-          class_name = readUTF_8_vr(stream)
-          read_object_member_names(stream,member_count,FlexObjects::FlexClass.new(class_name,is_dynamic))
+        class_signature = store :class do
+          RAMF::IO::FlexClassSignature.new(readUTF_8_vr(stream), is_dynamic, read_object_member_names(stream,member_count))
         end
-        readU29O_object_values(stream,flex_class)
+        readU29O_object_values(stream,class_signature)
       end
       
-      def readU29O_object_values(stream,flex_class)
+      def readU29O_object_values(stream,class_signature)
         store :object do
-  #       puts "reading#{flex_class.is_dynamic ? ' dynamic' : ''} #{flex_class.name} object"
-          #put a stub place-holder for the object reference
-          #and save the reference id to replace it later.
-          obj =  (flex_class.name == "") ? 
-              FlexObjects::FlexAnonymousObject.new : FlexObjects::FlexObject.new(flex_class.name.to_sym)
-          read_object_member_values(stream,flex_class,obj)
-          read_object_dynamic_members(stream, obj) if flex_class.is_dynamic
-          obj
+          puts "reading#{class_signature.is_dynamic ? ' dynamic' : ''} #{class_signature.name} object"
+          object = load_or_create_object(class_signature)
+#          object =  (class_signature.name == "") ? 
+#              FlexObjects::FlexAnonymousObject.new : FlexObjects::FlexObject.new(class_signature.name.to_sym)
+          read_object_member_values(stream,class_signature,object)
+          read_object_dynamic_members(stream, object) if class_signature.is_dynamic
+          object
         end
       end
       
-      def read_object_member_names(stream,member_count,flex_class)
-        member_count.times do
-          member_name = readUTF_8_vr(stream)
-          flex_class.members << member_name
+      def load_or_create_object(class_signature)
+        load_or_create_class(class_signature).new
+      end
+      
+      def load_or_create_class(class_signature)
+        class_name = class_signature.name.to_s
+        unless class_name=="" || (/\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/ =~ class_name)
+         raise NameError, "#{class_name.inspect} is not a valid constant name!"
         end
-        flex_class
+        RAMF::FlexClassTraits::KNOWN_CLASSES[class_name] || (Object.module_eval(class_name) rescue create_class(class_signature))
+      end
+      
+      def create_class(class_signature)
+        class_name = class_signature.name.to_s
+        Object.module_eval("class #{class_name};end;", __FILE__, __LINE__)
+        klass = Object.module_eval(class_name, __FILE__, __LINE__)
+        klass.class_eval do
+          class_signature.members.each {|m| attr_accessor m}
+        end
+        puts "Created new class:#{klass} with members:#{class_signature.members.join(',')}"
+        klass
+      end
+      
+      def read_object_member_names(stream,member_count)
+        members = []
+        member_count.times do
+          members << readUTF_8_vr(stream)
+        end
+        members
       end
       
       def read_object_member_values(stream,flex_class,obj)
         flex_class.members.each do|key|
   #        pos = stream.pos
-          obj[key] = read_value_type(stream)
+          obj.send("#{key}=",read_value_type(stream))
   #        puts "reading object_member_value #{key} in byte #{pos}: #{obj[key].inspect}"
         end
         obj

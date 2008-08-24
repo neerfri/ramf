@@ -1,6 +1,8 @@
 module RAMF
-  class PlaceHolder
-    
+  module IO    
+    class PlaceHolder
+      
+    end
   end
 end
     

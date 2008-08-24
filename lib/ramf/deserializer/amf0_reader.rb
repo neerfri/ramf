@@ -1,9 +1,9 @@
 module RAMF
   module Deserializer
     class AMF0Reader
-      include RAMF::Constants
-      include RAMF::CommonReadWrite
-      include RAMF::ReferenceTableUser
+      include RAMF::IO::Constants
+      include RAMF::IO::CommonReadWrite
+      include RAMF::IO::ReferenceTableUser
       
       def initialize(reference_table = nil)
         register_reference_table(reference_table)

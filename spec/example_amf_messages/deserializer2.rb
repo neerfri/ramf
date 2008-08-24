@@ -1,9 +1,9 @@
-class User
-  attr_accessor :created_on, :alien, :name, :update_profile, 
-                :preferences, :referer_id, :fb_removed_on, 
-                :facebook_uid, :id, :last_visit, :facebook_session_key,
-                :limited, :screen_name, :password, :email, :email_confirmed
-end
+#class User
+#  attr_accessor :created_on, :alien, :name, :update_profile, 
+#                :preferences, :referer_id, :fb_removed_on, 
+#                :facebook_uid, :id, :last_visit, :facebook_session_key,
+#                :limited, :screen_name, :password, :email, :email_confirmed
+#end
 
 
 describe 'deserializer1.bin' do

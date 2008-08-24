@@ -1,14 +1,14 @@
 require File.join(File.dirname(__FILE__),'../spec_helper')
 
-describe RAMF::ReferenceTable do
-  include RAMF::ReferenceTableUser
+describe RAMF::IO::ReferenceTable do
+  include RAMF::IO::ReferenceTableUser
   
   before(:each) do
     register_reference_table
   end
   
   it 'should register the reference table' do
-    @reference_table.should be_an_instance_of(RAMF::ReferenceTable)
+    @reference_table.should be_an_instance_of(RAMF::IO::ReferenceTable)
   end
   
   it 'should store and retrive strings' do

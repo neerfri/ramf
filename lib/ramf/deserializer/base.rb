@@ -1,7 +1,8 @@
 module RAMF
   module Deserializer
     class Base
-      include RAMF::CommonReadWrite
+      include RAMF::IO::CommonReadWrite
+      include RAMF::IO::ReferenceTableUser
       
       def initialize(stream)
         @stream = stream
@@ -34,7 +35,7 @@ module RAMF
       end
       
       def read_header
-        @reference_table = ReferenceTable.new
+        register_reference_table
         #Read header's name
         name = readUTF8(@stream)
         #Read the 'must-understand' flag

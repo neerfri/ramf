@@ -3,6 +3,11 @@ require File.join(File.dirname(__FILE__),'../spec_helper')
 class DummyClass;end;
 describe Class do 
   
+  after(:each) do
+    DummyClass.instance_variable_set('@flex_remoting',nil)
+    RAMF::FlexClassTraits::KNOWN_CLASSES.delete("DummyClass")
+  end
+  
   it 'should have flex_remoting marked as a transient member' do
     DummyClass.flex_remoting.transient_members.should include(:flex_remoting)
   end
@@ -29,6 +34,7 @@ describe Class do
     it 'should change the remote name of the class' do
       DummyClass.flex_alias :ActionScriptDummyClass
       DummyClass.flex_remoting.name.should eql("ActionScriptDummyClass")
+      RAMF::FlexClassTraits::KNOWN_CLASSES.delete("ActionScriptDummyClass")
     end
   end
   

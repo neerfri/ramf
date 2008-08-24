@@ -1,8 +1,8 @@
 module RAMF
   module Serializer
     class Base
-      include CommonReadWrite
-      include Constants
+      include RAMF::IO::CommonReadWrite
+      include RAMF::IO::Constants
       
       def initialize(amf_version)
         @stream = StringIO.new

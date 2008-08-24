@@ -1,7 +1,5 @@
 class Object
   
-  flex_alias ""
-  
   def flex_dynamic_members(scope = :default)
     if self.respond_to?(:flex_dynamic_members_for) 
       self.flex_dynamic_members_for(scope)
