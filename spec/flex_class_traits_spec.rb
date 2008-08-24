@@ -7,7 +7,7 @@ class DummyClass
   def initialize
     @some_attribute = "attribute"
   end
-end;
+end
 
 describe RAMF::FlexClassTraits do
   it 'sholud return the class\'s name' do

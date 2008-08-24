@@ -13,7 +13,7 @@ describe 'deserializer1.bin' do
   
   it 'should have the right properties' do
 #    p @amf_object
-    p @amf_object.messages[0].value[0]._explicitType
+#    p @amf_object.messages[0].value[0]._explicitType
     @amf_object.version.should be(0)
     @amf_object.client.should be(3)
   end
