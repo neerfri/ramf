@@ -9,8 +9,10 @@ describe RAMF::Deserializer::Base do
     
   it 'should work' do
     value = RAMF::FlexObjects::FlexAnonymousObject.new
-    value.attr1 = "1abc"
-    value.attr2 = "false"
+    value.string_attribute = "some string"
+    value.double_attribute = 34.523
+    value.integer_attribute = 5
+    value.symbol_attribute = :some_symbol
     @amfobject.add_message new_amf_message(value)
     #TODO: check that the message is good
     @serializer.write(@amfobject)
