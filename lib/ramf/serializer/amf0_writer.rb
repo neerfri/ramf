@@ -11,7 +11,7 @@ module RAMF
         @U32_double_mappings = {}
       end
       
-      def write(object,stream)
+      def write_value_type(object,stream)
         case
           when object.nil?
         end    

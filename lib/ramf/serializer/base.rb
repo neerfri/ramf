@@ -22,7 +22,7 @@ module RAMF
           #unknow header size so:
           writeU32(-1,@stream)
           #write the header data
-          AMF0Writer.new().write(header.value,@stream)
+          AMF0Writer.new().write_value_type(header.value,@stream)
         end
         
         writeU16(object.messages.length,@stream)
@@ -33,9 +33,9 @@ module RAMF
           writeU32(-1,@stream)
           if @amf_version == 3
             @stream << AMF3_TYPE_MARKER
-            AMF3Writer.new.write(message.value,@stream)
+            AMF3Writer.new.write_value_type(message.value,@stream)
           elsif @amf_version == 0
-            AMF0Writer.new.write(message.value,@stream)
+            AMF0Writer.new.write_value_type(message.value,@stream)
           end
         end
         

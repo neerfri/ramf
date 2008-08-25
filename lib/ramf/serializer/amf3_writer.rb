@@ -12,7 +12,7 @@ module RAMF
       end
       
       
-      def write(object,stream)
+      def write_value_type(object,stream)
         case
           when object.nil?
             stream << AMF3_NULL_MARKER
@@ -23,7 +23,7 @@ module RAMF
           when object.is_a?(Numeric)
               if (object.is_a?(Fixnum) && object >= AMF3_INTEGER_MIN && object <= AMF3_INTEGER_MAX) #check valid range for 29bits
                 stream << AMF3_INTEGER_MARKER
-                write_integer(object,stream)
+                writeU29(object,stream)
               else
                 stream << AMF3_DOUBLE_MARKER
                 write_double(object.to_f,stream)
@@ -40,7 +40,10 @@ module RAMF
         end
       end
       
-      def write_integer(int,stream)
+      private
+      
+      #writes an integer encoded as U29
+      def writeU29(int,stream)
         stream << (@U29_integer_mappings[int] ||= calculate_integer_U29(int))
       end
       
@@ -64,59 +67,55 @@ module RAMF
         end
       end
       
-      def write_double(num,stream)
-        stream << ( @U32_double_mappings[num] ||= [num].pack('G'))
-      end
-      
       def write_utf8_vr(str,stream)
         stream << 0x01 && return if str == ""
         if (index = retrive(:string, str))
           puts "#{str} is coded by reference at #{stream.pos}"
-          write_integer(index << 1, stream)
+          writeU29(index << 1, stream)
         else
           store :string, str
-          write_integer((str.length << 1) | 1, stream)
+          writeU29((str.length << 1) | 1, stream)
           stream << str
         end
       end
       
       def write_array(array, stream)
         if (index = retrive(:object, array))
-          write_integer(index << 1, stream)
+          writeU29(index << 1, stream)
         else
           store :object, array
-          write_integer((array.length << 1) | 1, stream)
+          writeU29((array.length << 1) | 1, stream)
           stream << AMF3_EMPTY_STRING #ruby's array is always a strict array
-          array.each{|item| write(item, stream) }
+          array.each{|item| write_value_type(item, stream) }
         end
       end
       
       def write_non_dynamic_object(object,stream)
         #TODO: implement a settings mechanism for classes, and then implement this:
         if (traits_ref = retrive(:class, klass))
-          write_integer((index << 2) | 1, stream)
+          writeU29((index << 2) | 1, stream)
         else
           definition = klass.remoting_copy
           number_of_sealed_members = definition[:members].count
-          write_integer((number_of_sealed_members << 4) | 0x03) #03 implies non-referenced, non-dynamic trait 
+          writeU29((number_of_sealed_members << 4) | 0x03) #03 implies non-referenced, non-dynamic trait 
         end
       end
       
       def write_dynamic_object(object,stream)
-        write_integer(object.class.flex_remoting.members.length << 4 | 0xb, stream)
+        writeU29(object.class.flex_remoting.members.length << 4 | 0xb, stream)
         write_utf8_vr(object.class.flex_remoting.name.to_s,stream)
         object.class.flex_remoting.members.each {|name| write_utf8_vr(name,stream)}
-        object.class.flex_remoting.members.each {|name| write(object.send(name),stream)}
+        object.class.flex_remoting.members.each {|name| write_value_type(object.send(name),stream)}
         object.flex_dynamic_members.each do |member_name, member_value|
           write_utf8_vr(member_name,stream)
-          write(member_value,stream)
+          write_value_type(member_value,stream)
         end
         stream << AMF3_EMPTY_STRING
       end
       
       def write_object(object, stream)
         if (index = retrive(:object, object))
-          write_integer(index << 1, stream)
+          writeU29(index << 1, stream)
         else
           object.class.flex_remoting.is_dynamic ? 
             write_dynamic_object(object,stream) : write_non_dynamic_object(object,stream)

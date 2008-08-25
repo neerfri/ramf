@@ -13,6 +13,7 @@ describe RAMF::Deserializer::Base do
     value.attr2 = "false"
     @amfobject.add_message new_amf_message(value)
     #TODO: check that the message is good
+    @serializer.write(@amfobject)
   end
   
 end

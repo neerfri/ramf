@@ -46,6 +46,7 @@ module RAMF
         stream << str
       end
       
+      #write an unsigned 32-bit integer in network (big-endian) byte order
       def writeU32(val,stream)
         stream << [val].pack('N')
       end
@@ -55,6 +56,9 @@ module RAMF
         stream << string
       end
       
+      def write_double(val,stream)
+        stream << ( @U32_double_mappings[val] ||= [val].pack('G'))
+      end
       
     end
   end
