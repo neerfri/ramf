@@ -5,9 +5,9 @@ class Object
       self.flex_dynamic_members_for(scope)
     else
       dynamic_members = self.instance_variables.map {|v| v[1..-1].to_sym}
-      dynamic_members -= self.class.flex_reflection.members(scope)
-      dynamic_members -= self.class.flex_reflection.transient_members
-      scope_opt = self.class.flex_reflection.amf_scope_options[scope]
+      dynamic_members -= self.class.flex_remoting.members(scope)
+      dynamic_members -= self.class.flex_remoting.transient_members
+      scope_opt = self.class.flex_remoting.amf_scope_options[scope]
       except = scope_opt && scope_opt[:except] ? scope_opt[:except] : []
       dynamic_members -= except
       dynamic_members.inject({}) {|member,hash| hash[member]=self.send(member.to_sym)}
