@@ -34,9 +34,15 @@ module RAMF
           when object.is_a?(Array)
             stream << AMF3_ARRAY_MARKER
             write_array(object, stream)
+          when object.is_a?(Date) || object.is_a?(Time)
+            #TODO: write Date type
+          when object.class.name == "REXML::Document"
+            #TODO: write XML type
+          when object.is_a?(::IO)
+            #TODO: write ByteArray type
           else
             stream << AMF3_OBJECT_MARKER
-            write_object(object,stream)
+            writeU29O(object,stream)
         end
       end
       
@@ -113,12 +119,15 @@ module RAMF
         stream << AMF3_EMPTY_STRING
       end
       
-      def write_object(object, stream)
+      def writeU29O(object, stream)
         if (index = retrive(:object, object))
+          #Object has already been writen, write the reference number.
           writeU29(index << 1, stream)
-        else
-          object.class.flex_remoting.is_dynamic ? 
-            write_dynamic_object(object,stream) : write_non_dynamic_object(object,stream)
+        elsif (index = retrive(:class, object.class))
+          #Class has already been writen, write the reference number.
+          writeU29(index << 2,stream)
+#          object.class.flex_remoting.is_dynamic ? 
+#            write_dynamic_object(object,stream) : write_non_dynamic_object(object,stream)
         end
       end
     end
