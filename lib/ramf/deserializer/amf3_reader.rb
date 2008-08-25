@@ -44,6 +44,7 @@ module RAMF
       end
 
       private
+      #reads an integer encoded as U29
       def readU29(stream)
         result = 0
         4.times do |i|
