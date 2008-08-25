@@ -103,10 +103,10 @@ module RAMF
       end
       
       def write_dynamic_object(object,stream)
-        write_integer(object.class.flex_reflection.members.length << 4 | 0xb, stream)
-        write_utf8_vr(object.class.flex_reflection.name.to_s,stream)
-        object.class.flex_reflection.members.each {|name| write_utf8_vr(name,stream)}
-        object.class.flex_reflection.members.each {|name| write(object.send(name),stream)}
+        write_integer(object.class.flex_remoting.members.length << 4 | 0xb, stream)
+        write_utf8_vr(object.class.flex_remoting.name.to_s,stream)
+        object.class.flex_remoting.members.each {|name| write_utf8_vr(name,stream)}
+        object.class.flex_remoting.members.each {|name| write(object.send(name),stream)}
         object.flex_dynamic_members.each do |member_name, member_value|
           write_utf8_vr(member_name,stream)
           write(member_value,stream)
@@ -118,7 +118,7 @@ module RAMF
         if (index = retrive(:object, object))
           write_integer(index << 1, stream)
         else
-          object.class.flex_reflection.is_dynamic ? 
+          object.class.flex_remoting.is_dynamic ? 
             write_dynamic_object(object,stream) : write_non_dynamic_object(object,stream)
         end
       end
