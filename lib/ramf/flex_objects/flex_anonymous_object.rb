@@ -26,6 +26,12 @@ module RAMF
           self["#{method_name}".to_sym]
         end
       end
+      
+      
+      def flex_dynamic_members(scope = :default)
+        self.keys.inject({}) {|mem, key| mem[key.to_s] = self[key]; mem}
+      end
+      
     end
   end
 end
