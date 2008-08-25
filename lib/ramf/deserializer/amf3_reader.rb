@@ -126,7 +126,7 @@ module RAMF
       
       def readU29O_object_values(stream,class_signature)
         store :object do
-          puts "reading#{class_signature.is_dynamic ? ' dynamic' : ''} #{class_signature.name} object"
+#          puts "reading#{class_signature.is_dynamic ? ' dynamic' : ''} #{class_signature.name} object"
           object = load_or_create_object(class_signature)
 #          object =  (class_signature.name == "") ? 
 #              FlexObjects::FlexAnonymousObject.new : FlexObjects::FlexObject.new(class_signature.name.to_sym)
@@ -155,7 +155,7 @@ module RAMF
         klass.class_eval do
           class_signature.members.each {|m| attr_accessor m}
         end
-        puts "Created new class:#{klass} with members:#{class_signature.members.join(',')}"
+#        puts "Created new class:#{klass} with members:#{class_signature.members.join(',')}"
         klass
       end
       
