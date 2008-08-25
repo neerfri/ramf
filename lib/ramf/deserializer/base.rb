@@ -45,7 +45,7 @@ module RAMF
         
         #Read header's value
         value = AMF0Reader.new.read_value_type(@stream)
-        AMFHeader.new(name,value,must_understand)
+        AMFHeader.new(name,value,must_understand, length)
       end
       
       def read_messages
@@ -68,7 +68,8 @@ module RAMF
         value = AMF0Reader.new.read_value_type(@stream)
         AMFMessage.new :target_uri=> target_uri,
                        :response_uri=> response_uri,
-                       :value=> value
+                       :value=> value,
+                       :length=>length
       end
           
     end
