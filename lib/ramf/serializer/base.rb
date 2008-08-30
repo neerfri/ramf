@@ -28,7 +28,7 @@ module RAMF
         writeU16(object.messages.length,@stream)
         object.messages.each do |message|
           writeUTF8(message.target_uri,@stream)
-          writeUTF8("null",@stream)
+          writeUTF8("null",@stream) #we have no response URI
           #unknow message size so:
           writeU32(-1,@stream)
           if @amf_version == 3
