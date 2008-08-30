@@ -1,3 +1,5 @@
+require 'date'
+
 module RAMF
   module Serializer
     class AMF3Writer
@@ -28,9 +30,9 @@ module RAMF
                 stream << AMF3_DOUBLE_MARKER
                 write_double(object.to_f,stream)
               end
-          when object.is_a?(String)
+          when object.is_a?(String) || object.is_a?(Symbol)
             stream << AMF3_STRING_MARKER
-            write_utf8_vr(object,stream)
+            write_utf8_vr(object.to_s,stream)
           when object.is_a?(Array)
             stream << AMF3_ARRAY_MARKER
             write_array(object, stream)
@@ -41,6 +43,7 @@ module RAMF
           when object.is_a?(::IO)
             #TODO: write ByteArray type
           else
+            puts "writing object#{stream.pos}"
             stream << AMF3_OBJECT_MARKER
             writeU29O(object,stream)
         end
@@ -96,40 +99,75 @@ module RAMF
         end
       end
       
-      def write_non_dynamic_object(object,stream)
-        #TODO: implement a settings mechanism for classes, and then implement this:
-        if (traits_ref = retrive(:class, klass))
-          writeU29((index << 2) | 1, stream)
-        else
-          definition = klass.remoting_copy
-          number_of_sealed_members = definition[:members].count
-          writeU29((number_of_sealed_members << 4) | 0x03) #03 implies non-referenced, non-dynamic trait 
-        end
-      end
-      
-      def write_dynamic_object(object,stream)
-        writeU29(object.class.flex_remoting.members.length << 4 | 0xb, stream)
-        write_utf8_vr(object.class.flex_remoting.name.to_s,stream)
-        object.class.flex_remoting.members.each {|name| write_utf8_vr(name,stream)}
-        object.class.flex_remoting.members.each {|name| write_value_type(object.send(name),stream)}
-        object.flex_dynamic_members.each do |member_name, member_value|
-          write_utf8_vr(member_name,stream)
-          write_value_type(member_value,stream)
-        end
-        stream << AMF3_EMPTY_STRING
-      end
+#      def write_non_dynamic_object(object,stream)
+#        #TODO: implement a settings mechanism for classes, and then implement this:
+#        if (traits_ref = retrive(:class, klass))
+#          writeU29((index << 2) | 1, stream)
+#        else
+#          definition = klass.remoting_copy
+#          number_of_sealed_members = definition[:members].count
+#          writeU29((number_of_sealed_members << 4) | 0x03) #03 implies non-referenced, non-dynamic trait 
+#        end
+#      end
+#      
+#      def write_dynamic_object(object,stream)
+#        writeU29(object.class.flex_remoting.members.length << 4 | 0xb, stream)
+#        write_utf8_vr(object.class.flex_remoting.name.to_s,stream)
+#        object.class.flex_remoting.members.each {|name| write_utf8_vr(name,stream)}
+#        object.class.flex_remoting.members.each {|name| write_value_type(object.send(name),stream)}
+#        object.flex_dynamic_members.each do |member_name, member_value|
+#          write_utf8_vr(member_name,stream)
+#          write_value_type(member_value,stream)
+#        end
+#        stream << AMF3_EMPTY_STRING
+#      end
       
       def writeU29O(object, stream)
         if (index = retrive(:object, object))
           #Object has already been writen, write the reference number.
           writeU29(index << 1, stream)
-        elsif (index = retrive(:class, object.class))
-          #Class has already been writen, write the reference number.
-          writeU29(index << 2,stream)
-#          object.class.flex_remoting.is_dynamic ? 
-#            write_dynamic_object(object,stream) : write_non_dynamic_object(object,stream)
+        else
+          if (index = retrive(:class, object.class))
+            #Class has already been writen, write the reference number.
+            writeU29((index << 2) | 0x01,stream)
+          else
+            #We need to write the class traits
+            store :class, object.class do
+              writeU29O_object_traits(object,stream)
+            end
+          end
+          #Now write the object
+          writeU29O_object_members(object, stream)
+          if object.class.flex_remoting.is_dynamic && object.respond_to?(:flex_dynamic_members)
+            writeU29O_object_dynamic_members(object, stream) 
+          end
         end
       end
+      
+      
+      def  writeU29O_object_members(object,stream)
+        object.class.flex_remoting.members.each do |member| 
+          write_value_type(object.send(member), stream)
+        end
+      end
+      
+      def writeU29O_object_dynamic_members(object, stream)
+        object.flex_dynamic_members.each do |member_name, member_value|
+          write_utf8_vr(member_name.to_s, stream)
+          write_value_type(member_value, stream)
+        end
+        write_utf8_vr("", stream)
+      end
+      
+      def writeU29O_object_traits(object,stream)
+        flex_remoting = object.class.flex_remoting
+        member_count = flex_remoting.members.size
+        mask = flex_remoting.is_dynamic ? 0x0B : 0x03
+        writeU29((member_count << 4) | mask, stream)
+        write_utf8_vr(flex_remoting.name, stream) #Write class name
+        flex_remoting.members.each {|m| write_utf8_vr(m, stream)} #Write class's sealed members
+      end
+      
     end
   end
 end
