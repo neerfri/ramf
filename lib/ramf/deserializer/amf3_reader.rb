@@ -122,6 +122,7 @@ module RAMF
         class_signature = store :class do
           RAMF::IO::FlexClassSignature.new(readUTF_8_vr(stream), is_dynamic, read_object_member_names(stream,member_count))
         end
+        RAMF::DEBUG_LOG.debug "Created new class signature: #{class_signature.inspect}"
         readU29O_object_values(stream,class_signature)
       end
       
