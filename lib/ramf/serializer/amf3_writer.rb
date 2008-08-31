@@ -43,7 +43,7 @@ module RAMF
           when object.is_a?(::IO)
             #TODO: write ByteArray type
           else
-            puts "writing object#{stream.pos}"
+            RAMF::DEBUG_LOG.debug "Writing object #{object.inspect}, position in stream: #{stream.pos}"
             stream << AMF3_OBJECT_MARKER
             writeU29O(object,stream)
         end
@@ -77,7 +77,7 @@ module RAMF
       end
       
       def write_utf8_vr(str,stream)
-        stream << 0x01 && return if str == ""
+        writeU29(0x01,stream) && return if str == ""
         if (index = retrive(:string, str))
           puts "#{str} is coded by reference at #{stream.pos}"
           writeU29(index << 1, stream)
@@ -132,11 +132,13 @@ module RAMF
             writeU29((index << 2) | 0x01,stream)
           else
             #We need to write the class traits
-            store :class, object.class do
-              writeU29O_object_traits(object,stream)
-            end
+            RAMF::DEBUG_LOG.debug "Writing class traits for #{object.class}"
+            store :class, object.class
+            writeU29O_object_traits(object,stream)
           end
           #Now write the object
+          RAMF::DEBUG_LOG.debug "Writing object attributes #{object.inspect}"
+          store :object, object
           writeU29O_object_members(object, stream)
           if object.class.flex_remoting.is_dynamic && object.respond_to?(:flex_dynamic_members)
             writeU29O_object_dynamic_members(object, stream) 
@@ -146,13 +148,17 @@ module RAMF
       
       
       def  writeU29O_object_members(object,stream)
-        object.class.flex_remoting.members.each do |member| 
+        RAMF::DEBUG_LOG.debug "Writing sealed members for #{object.inspect}"
+        object.class.flex_remoting.members.each do |member|
+          RAMF::DEBUG_LOG.debug "Writing sealed member #{member}"
           write_value_type(object.send(member), stream)
         end
       end
       
       def writeU29O_object_dynamic_members(object, stream)
+        RAMF::DEBUG_LOG.debug "Writing dynamic members for #{object.inspect}"
         object.flex_dynamic_members.each do |member_name, member_value|
+          RAMF::DEBUG_LOG.debug "Writing dynamic member #{member_name}"
           write_utf8_vr(member_name.to_s, stream)
           write_value_type(member_value, stream)
         end
@@ -163,7 +169,9 @@ module RAMF
         flex_remoting = object.class.flex_remoting
         member_count = flex_remoting.members.size
         mask = flex_remoting.is_dynamic ? 0x0B : 0x03
+        RAMF::DEBUG_LOG.debug "Writing traits marker member count:#{member_count}, mask:#{mask.to_s(2)}"
         writeU29((member_count << 4) | mask, stream)
+        RAMF::DEBUG_LOG.debug "Writing traits name: #{flex_remoting.name.inspect}"
         write_utf8_vr(flex_remoting.name, stream) #Write class name
         flex_remoting.members.each {|m| write_utf8_vr(m, stream)} #Write class's sealed members
       end
