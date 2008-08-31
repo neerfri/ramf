@@ -23,7 +23,25 @@ require 'ramf/io/reference_table'
 require 'ramf/deserializer'
 require 'ramf/serializer'
 
-#Class.extend(FlexRemotingClassExtensions)
-#module AMFSerializer
-#  
-#end
+module RAMF
+  class NullLogger
+    def debug(message)
+      
+    end
+  end
+  if defined?(RAMF_DEBUG) #&& !defined(RAMF::DEBUG_LOG)
+    begin
+      puts "initializing RAMF debug log file"
+      require 'fileutils'
+      require 'logger'
+      log_path = File.join(File.dirname(__FILE__),'../debug/debug.log')
+      FileUtils.mkdir_p File.dirname(log_path)
+      DEBUG_LOG = Logger.new(log_path)
+      DEBUG_LOG.info("Initiated RAMF with debugging enabled at #{Time.now.to_s}.")
+    rescue
+    end
+  else
+    DEBUG_LOG = NullLogger.new()
+  end
+  
+end
