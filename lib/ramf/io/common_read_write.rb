@@ -57,7 +57,7 @@ module RAMF
       end
       
       def write_double(val,stream)
-        stream << ( @U32_double_mappings[val] ||= [val].pack('G'))
+        stream << ( @double_mappings[val] ||= [val].pack('G'))
       end
       
     end

@@ -10,7 +10,7 @@ module RAMF
       def initialize(reference_table = nil)
         register_reference_table(reference_table)
         @U29_integer_mappings = {}
-        @U32_double_mappings = {}
+        @double_mappings = {}
       end
       
       
@@ -35,9 +35,10 @@ module RAMF
             write_utf8_vr(object.to_s,stream)
           when object.is_a?(Array)
             stream << AMF3_ARRAY_MARKER
-            write_array(object, stream)
+            write_array_type(object, stream)
           when object.is_a?(Date) || object.is_a?(Time)
-            #TODO: write Date type
+            stream << AMF3_DATE_MARKER
+            writeU29D(object, stream)
           when object.class.name == "REXML::Document"
             #TODO: write XML type
           when object.is_a?(::IO)
@@ -88,40 +89,21 @@ module RAMF
         end
       end
       
-      def write_array(array, stream)
+      def write_array_type(array, stream)
         if (index = retrive(:object, array))
           writeU29(index << 1, stream)
         else
           store :object, array
-          writeU29((array.length << 1) | 1, stream)
-          stream << AMF3_EMPTY_STRING #ruby's array is always a strict array
-          array.each{|item| write_value_type(item, stream) }
+          writeU29A_value(array, stream)
         end
       end
       
-#      def write_non_dynamic_object(object,stream)
-#        #TODO: implement a settings mechanism for classes, and then implement this:
-#        if (traits_ref = retrive(:class, klass))
-#          writeU29((index << 2) | 1, stream)
-#        else
-#          definition = klass.remoting_copy
-#          number_of_sealed_members = definition[:members].count
-#          writeU29((number_of_sealed_members << 4) | 0x03) #03 implies non-referenced, non-dynamic trait 
-#        end
-#      end
-#      
-#      def write_dynamic_object(object,stream)
-#        writeU29(object.class.flex_remoting.members.length << 4 | 0xb, stream)
-#        write_utf8_vr(object.class.flex_remoting.name.to_s,stream)
-#        object.class.flex_remoting.members.each {|name| write_utf8_vr(name,stream)}
-#        object.class.flex_remoting.members.each {|name| write_value_type(object.send(name),stream)}
-#        object.flex_dynamic_members.each do |member_name, member_value|
-#          write_utf8_vr(member_name,stream)
-#          write_value_type(member_value,stream)
-#        end
-#        stream << AMF3_EMPTY_STRING
-#      end
-      
+      def writeU29A_value(array, stream)
+        writeU29((array.length << 1) | 1, stream)
+        stream << AMF3_EMPTY_STRING #ruby's array is always a strict array
+        array.each{|item| write_value_type(item, stream) }
+      end
+            
       def writeU29O(object, stream)
         if (index = retrive(:object, object))
           #Object has already been writen, write the reference number.
@@ -139,7 +121,9 @@ module RAMF
           #Now write the object
           RAMF::DEBUG_LOG.debug "Writing object attributes #{object.inspect}"
           store :object, object
+          #write sealed members
           writeU29O_object_members(object, stream)
+          #write dynamic members
           if object.class.flex_remoting.is_dynamic && object.respond_to?(:flex_dynamic_members)
             writeU29O_object_dynamic_members(object, stream) 
           end
@@ -174,6 +158,21 @@ module RAMF
         RAMF::DEBUG_LOG.debug "Writing traits name: #{flex_remoting.name.inspect}"
         write_utf8_vr(flex_remoting.name, stream) #Write class name
         flex_remoting.members.each {|m| write_utf8_vr(m, stream)} #Write class's sealed members
+      end
+      
+      def writeU29D(date, stream)
+        if (index = retrive(:object, date))
+          writeU29(index << 1, stream)
+        else
+          store :object, date
+          writeU29D_value(date, stream)
+        end
+      end
+      
+      def writeU29D_value(date, stream)
+        writeU29(1,stream)
+        secs = date.is_a?(Time) ? date.utc.to_i : date.strftime("%s").to_i
+        write_double(secs.to_i * 1000,stream)
       end
       
     end

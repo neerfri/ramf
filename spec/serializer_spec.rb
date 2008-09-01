@@ -8,16 +8,20 @@ describe RAMF::Serializer::Base do
   
   describe '@encoded_object(Example 1)' do
     
-    before(:each) do
+    before(:all) do
       @amfobject = RAMF::AMFObject.new
       value = RAMF::FlexObjects::FlexAnonymousObject.new
       value.string_attribute = "some string"
       value.double_attribute = 34.523
       value.integer_attribute = 5
       value.symbol_attribute = :some_symbol
+      value.time_attribute = Time.now
+      value.date_attribute = Date.today
       @amfobject.add_message new_amf_message(value)
-#     File.open('debug/output.bin',"w+") {|f| f.print(amf_string)}
-      @deserializer = RAMF::Deserializer::Base.new(StringIO.new(@serializer.write(@amfobject)))
+      amf_string = @serializer.write(@amfobject)
+#      p amf_string
+#      File.open('debug/output.bin',"w+") {|f| f.print(amf_string)}
+      @deserializer = RAMF::Deserializer::Base.new(StringIO.new(amf_string))
       @response = @deserializer.process
       @encoded_object = @response.messages[0].value
     end
@@ -41,6 +45,23 @@ describe RAMF::Serializer::Base do
     it 'should respond to :double_attribute with 34.523' do
       @encoded_object.double_attribute.should == 34.523
     end
+    
+    it 'should respond_to :date_attribute with Date.today' do
+      @encoded_object.date_attribute.day.should == Date.today.day
+      @encoded_object.date_attribute.month.should == Date.today.month
+      @encoded_object.date_attribute.year.should == Date.today.year
+    end
+    
+    it 'should respond_to :time_attribute with the right time' do
+      @encoded_object.time_attribute.utc.sec.should == @amfobject.messages[0].value.time_attribute.sec
+      @encoded_object.time_attribute.utc.min.should == @amfobject.messages[0].value.time_attribute.min
+      @encoded_object.time_attribute.utc.hour.should == @amfobject.messages[0].value.time_attribute.hour
+      @encoded_object.time_attribute.utc.day.should == @amfobject.messages[0].value.time_attribute.day
+      @encoded_object.time_attribute.utc.month.should == @amfobject.messages[0].value.time_attribute.month
+      @encoded_object.time_attribute.utc.year.should == @amfobject.messages[0].value.time_attribute.year
+    end
+    
+    
   end
     
   
