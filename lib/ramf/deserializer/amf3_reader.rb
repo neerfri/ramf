@@ -179,7 +179,7 @@ module RAMF
       end
       
       def readU29X(stream)
-        ref_or_length = readU29(stream)
+        length_or_ref = readU29(stream)
         #check if the XML is a reference or value.
         #XML references are stored in the object reference table. 
         (length_or_ref & 0x01) == 0 ? readU29O_ref(length_or_ref>>1, stream) : readU29X_value(length_or_ref>>1, stream)
@@ -187,7 +187,7 @@ module RAMF
       
       def readU29X_value(length, stream)
         store :object do
-          stream.read(length)
+          defined?(REXML::Document) ? REXML::Document.new(stream.read(length)) : stream.read(length)
         end
       end
       
