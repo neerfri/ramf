@@ -40,7 +40,8 @@ module RAMF
             stream << AMF3_DATE_MARKER
             writeU29D(object, stream)
           when object.class.name == "REXML::Document"
-            #TODO: write XML type
+            stream << AMF3_XML_STRING_MARKER
+            writeU29X(object, stream)
           when object.is_a?(::IO)
             #TODO: write ByteArray type
           else
@@ -173,6 +174,20 @@ module RAMF
         writeU29(1,stream)
         secs = date.is_a?(Time) ? date.utc.to_i : date.strftime("%s").to_i
         write_double(secs.to_i * 1000,stream)
+      end
+      
+      def writeU29X(xml, stream)
+        if (index = retrive(:object, xml))
+          writeU29(index << 1, stream)
+        else
+          store :object, xml
+          writeU29X_value(xml, stream)
+        end
+      end
+      
+      def writeU29X_value(xml, stream)
+        writeU29((xml.to_s.length << 1) | 1, stream)
+        stream << xml.to_s
       end
       
     end

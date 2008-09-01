@@ -1,4 +1,5 @@
 require File.join(File.dirname(__FILE__),'spec_helper')
+require 'rexml/document'
 
 describe RAMF::Serializer::Base do
   
@@ -17,6 +18,7 @@ describe RAMF::Serializer::Base do
       value.symbol_attribute = :some_symbol
       value.time_attribute = Time.now
       value.date_attribute = Date.today
+      value.xml_attribute = REXML::Document.new("<xml><e>1</e><e>2</e></xml>")
       @amfobject.add_message new_amf_message(value)
       amf_string = @serializer.write(@amfobject)
 #      p amf_string
@@ -61,6 +63,9 @@ describe RAMF::Serializer::Base do
       @encoded_object.time_attribute.utc.year.should == @amfobject.messages[0].value.time_attribute.year
     end
     
+    it 'should respond_to :xml_attribute with the right XML' do
+      @encoded_object.xml_attribute.to_s.should == @amfobject.messages[0].value.xml_attribute.to_s
+    end
     
   end
     
