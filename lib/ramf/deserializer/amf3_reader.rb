@@ -230,7 +230,7 @@ module RAMF
       end
       
       def readU29B_value(length,stream)
-        StringIO.new(stream.read(length))
+        RAMF::FlexObjects::ByteArray.new(stream.read(length))
       end
       
       def readUTF_8_vr(stream)

@@ -19,6 +19,7 @@ describe RAMF::Serializer::Base do
       value.time_attribute = Time.now
       value.date_attribute = Date.today
       value.xml_attribute = REXML::Document.new("<xml><e>1</e><e>2</e></xml>")
+      value.byte_array_attribute = StringIO.new("Some Binary Stream To Serialize")
       @amfobject.add_message new_amf_message(value)
       amf_string = @serializer.write(@amfobject)
 #      p amf_string
@@ -65,6 +66,14 @@ describe RAMF::Serializer::Base do
     
     it 'should respond_to :xml_attribute with the right XML' do
       @encoded_object.xml_attribute.to_s.should == @amfobject.messages[0].value.xml_attribute.to_s
+    end
+    
+    it 'should respond_to :byte_array_attribute with a RAMF::FlexObjects::ByteArray instance' do
+      @encoded_object.byte_array_attribute.should be_an_instance_of(RAMF::FlexObjects::ByteArray)
+    end
+    
+    it ':byte_array_attribute attribute should be a stream containing "Some Binary Stream To Serialize"' do
+      @encoded_object.byte_array_attribute.read.should == "Some Binary Stream To Serialize"
     end
     
   end

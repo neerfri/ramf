@@ -42,8 +42,9 @@ module RAMF
           when object.class.name == "REXML::Document"
             stream << AMF3_XML_STRING_MARKER
             writeU29X(object, stream)
-          when object.is_a?(::IO)
-            #TODO: write ByteArray type
+          when object.is_a?(::IO) || object.is_a?(::StringIO)
+            stream << AMF3_BYTE_ARRAY_MARKER
+            writeU29B(object, stream)
           else
             RAMF::DEBUG_LOG.debug "Writing object #{object.inspect}, position in stream: #{stream.pos}"
             stream << AMF3_OBJECT_MARKER
@@ -188,6 +189,21 @@ module RAMF
       def writeU29X_value(xml, stream)
         writeU29((xml.to_s.length << 1) | 1, stream)
         stream << xml.to_s
+      end
+      
+      def writeU29B(io, stream)
+        if (index = retrive(:object, io))
+          writeU29(index << 1, stream)
+        else
+          store :object, io
+          writeU29B_value(io, stream)
+        end
+      end
+      
+      def writeU29B_value(io, stream)
+        writeU29((io.length << 1) | 1, stream)
+        io.rewind
+        stream << io.read
       end
       
     end
