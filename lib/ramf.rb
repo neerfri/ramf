@@ -1,6 +1,7 @@
 
 $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+require 'stringio'
 
 #Extensions to existing Ruby classes.
 require 'ramf/flex_class_traits'
