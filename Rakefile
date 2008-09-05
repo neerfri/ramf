@@ -15,3 +15,15 @@ Rake::RDocTask.new do |rd|
   rd.rdoc_dir = "doc"
   rd.rdoc_files.include("README", "lib/**/*.rb")
 end
+
+namespace :spec do
+  desc "Generate code coverage with rcov"
+  task :rcov do
+    rm_rf "coverage/coverage.data"
+    rm_rf "coverage/"
+    mkdir "coverage"
+    rcov = %(rcov --text-summary -Ilib --html -o coverage spec/*_spec.rb spec/**/*_spec.rb)
+    system rcov
+    system "firefox coverage/index.html"
+  end
+end
