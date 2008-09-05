@@ -7,6 +7,25 @@ describe RAMF::Serializer::Base do
     @serializer = RAMF::Serializer::Base.new(3)
   end
   
+  describe 'header serialization' do
+    
+    before(:all) do
+      @amfobject = RAMF::AMFObject.new
+      header = RAMF::AMFHeader.new("TestHeader",[1,2],true)
+      @amfobject.add_header header
+      @amfobject.add_message new_amf_message(nil)
+      p amf_string = @serializer.write(@amfobject)
+      @deserializer = RAMF::Deserializer::Base.new(StringIO.new(amf_string))
+      @response = @deserializer.process
+      @header = @response.headers[0]
+    end
+    
+    
+    it 'should ' do
+      p @header
+    end
+  end
+  
   describe '@encoded_object(Example 1)' do
     
     before(:all) do
@@ -16,6 +35,7 @@ describe RAMF::Serializer::Base do
       value.double_attribute = 34.523
       value.integer_attribute = 5
       value.symbol_attribute = :some_symbol
+      value.array_attribute = [123456, 78910111213, 12345678910]
       value.time_attribute = Time.now
       value.date_attribute = Date.today
       value.xml_attribute = REXML::Document.new("<xml><e>1</e><e>2</e></xml>")
@@ -39,6 +59,10 @@ describe RAMF::Serializer::Base do
     
     it 'should respond to :symbol_attribute with "some_symbol"' do
       @encoded_object.symbol_attribute.should == "some_symbol"
+    end
+    
+    it 'should respond to array_attribute with [123456, 78910111213, 12345678910]' do
+      @encoded_object.array_attribute.should == [123456, 78910111213, 12345678910]
     end
     
     it 'should respond to :integer_attribute with 5' do
@@ -77,12 +101,49 @@ describe RAMF::Serializer::Base do
     end
     
   end
+  
+  
+  
+  describe '@encoded_object(Example 2)' do
+    
+    class SerializerTestObject
+      attr_accessor :rw_attr
+      attr_writer :w_attr
+      
+      flex_remoting_members :fixed_method
+      
+      def fixed_method
+        "fixed_method"
+      end
+    end
+    
+    
+    before(:all) do
+      @amfobject = RAMF::AMFObject.new
+      value = SerializerTestObject.new
+      value.rw_attr = "read-write attribute"
+      value.w_attr = "write-only attribute"
+      @amfobject.add_message new_amf_message(value)
+      amf_string = @serializer.write(@amfobject)
+#      p amf_string
+#      File.open('debug/output.bin',"w+") {|f| f.print(amf_string)}
+      @deserializer = RAMF::Deserializer::Base.new(StringIO.new(amf_string))
+      @response = @deserializer.process
+      @encoded_object = @response.messages[0].value
+    end
+    
+    it 'should respond_to :rw_attr with "read-write attribute"' do
+      @encoded_object.rw_attr.should == "read-write attribute"
+    end
+    
+  end
+  
     
   
 end
 
 def new_amf_message(value)
-  RAMF::AMFMessage.new(:target_uri=>"1\onResult",
+  RAMF::AMFMessage.new(:target_uri=>'1\onResult',
                        :response_uri=>"null",
                        :value=>value)
 end
