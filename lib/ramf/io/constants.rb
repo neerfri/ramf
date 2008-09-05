@@ -73,7 +73,7 @@ module RAMF
       AMF3_XML_STRING_MARKER   = "\013"
       AMF3_BYTE_ARRAY_MARKER   = "\014"
       
-      #AMF3_EMPTY_STRING = "\001"
+      AMF3_EMPTY_STRING = "\001"
     end
   end
 end
