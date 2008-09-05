@@ -171,9 +171,8 @@ module RAMF
       
       def read_object_member_values(stream,flex_class,obj)
         flex_class.members.each do|key|
-  #        pos = stream.pos
-          obj.send("#{key}=",read_value_type(stream))
-  #        puts "reading object_member_value #{key} in byte #{pos}: #{obj[key].inspect}"
+          value = read_value_type(stream)
+          obj.respond_to?("#{key}=") ? obj.send("#{key}=",value) : obj.instance_variable_set("@#{key}",value)
         end
         obj
       end

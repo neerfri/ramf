@@ -10,7 +10,10 @@ class Object
       scope_opt = self.class.flex_remoting.amf_scope_options[scope]
       except = scope_opt && scope_opt[:except] ? scope_opt[:except] : []
       dynamic_members -= except
-      dynamic_members.inject({}) {|member,hash| hash[member]=self.send(member.to_sym)}
+      dynamic_members.inject({}) do |hash,member| 
+        hash[member]=(self.respond_to?(member) ? self.send(member) : self.instance_variable_get("@#{member}"))
+        hash
+      end
     end
   end
 end
