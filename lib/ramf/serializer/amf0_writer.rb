@@ -13,6 +13,9 @@ module RAMF
       
       def write_value_type(object,stream)
         case
+          when (index = retrive(:object, object))
+            stream << AMF0_REFERENCE_MARKER
+            writeU16(index)
           when object.nil?
             stream << AMF0_NULL_MARKER
           when object.is_a?(Numeric)
@@ -40,7 +43,10 @@ module RAMF
             write_date(object, stream)
           when object.class.name == "REXML::Document"
             stream << AMF0_XML_MARKER
-            write_xml(object, stream)  
+            write_xml(object, stream)
+          when object.is_a?(RAMF::FlexObjects::FlexAnonymousObject)
+            stream << AMF0_OBJECT_MARKER
+            write_anonymous_object(object, stream)
         end
       end
       
@@ -51,9 +57,7 @@ module RAMF
       
       def write_ecma_array(hash, stream)
         writeU32(hash.size, stream)
-        hash.each {|k,v| writeUTF8(k.to_s); write_value_type(v)}
-        writeUTF8("")
-        stream << AMF0_OBJECT_END_MARKER
+        write_object_properties(hash, stream)
       end
       
       def write_date(date, stream)
@@ -64,6 +68,19 @@ module RAMF
     
       def write_xml(xml, stream)
         writeUTF8Long(xml.to_s, stream)
+      end
+      
+      def write_anonymous_object(object, stream)
+        properties_hash = {}
+        object.class.flex_remoting.members.each {|member| properties_hash[member] = object.send(member)}
+        object.flex_dynamic_members.each {|member, value|properties_hash[member] = value }
+        write_object_properties(properties_hash, stream)
+      end
+      
+      def write_object_properties(properties_hash, stream)
+        properties_hash.each {|k,v| writeUTF8(k.to_s); write_value_type(v)}
+        writeUTF8("")
+        stream << AMF0_OBJECT_END_MARKER
       end
     
     end      
