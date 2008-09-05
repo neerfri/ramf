@@ -41,9 +41,12 @@ module RAMF
         stream.read(length)
       end
       
+      def writeU8(val, stream)
+        stream << [val].pack('C')
+      end
+      
       def writeU16(val,stream)
-        str = [val].pack('n')
-        stream << str
+        stream << [val].pack('n')
       end
       
       #write an unsigned 32-bit integer in network (big-endian) byte order
@@ -53,6 +56,11 @@ module RAMF
       
       def writeUTF8(string,stream)
         writeU16(string.length,stream) 
+        stream << string
+      end
+      
+      def writeUTF8Long(string,stream)
+        writeU32(string.length, stream)
         stream << string
       end
       
