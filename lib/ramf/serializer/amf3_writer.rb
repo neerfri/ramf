@@ -82,7 +82,6 @@ module RAMF
       def write_utf8_vr(str,stream)
         writeU29(0x01,stream) && return if str == ""
         if (index = retrive(:string, str))
-          puts "#{str} is coded by reference at #{stream.pos}"
           writeU29(index << 1, stream)
         else
           store :string, str
@@ -159,7 +158,7 @@ module RAMF
         writeU29((member_count << 4) | mask, stream)
         RAMF::DEBUG_LOG.debug "Writing traits name: #{flex_remoting.name.inspect}"
         write_utf8_vr(flex_remoting.name, stream) #Write class name
-        flex_remoting.members.each {|m| write_utf8_vr(m, stream)} #Write class's sealed members
+        flex_remoting.members.each {|m| write_utf8_vr(m.to_s, stream)} #Write class's sealed members
       end
       
       def writeU29D(date, stream)
