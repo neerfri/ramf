@@ -9,7 +9,7 @@ module RAMF
     
     def initialize(klass,is_dynamic, options = {})
       @klass = klass
-      @amf_scope_options = {}
+      @amf_scope_options = (superclass_has_remoting? ? klass.superclass.flex_remoting.amf_scope_options.dup : {})
       @members = {}
       self.name= klass.name
       @is_dynamic = is_dynamic
@@ -25,6 +25,14 @@ module RAMF
       KNOWN_CLASSES[new_name] = klass
     end
     
+    def transient_members
+      if superclass_has_remoting?
+        (@transient_members + klass.superclass.flex_remoting.transient_members).uniq
+      else
+        @transient_members
+      end
+    end
+    
     def members(scope = :default)
       @members[scope] ||= find_members(scope)
     end
@@ -37,7 +45,7 @@ module RAMF
     private
         
     def find_members(scope)
-      members = @defined_members
+      members = (superclass_has_remoting? ? klass.superclass.flex_remoting.members(scope) : []) + @defined_members
       if (amf_scope_options[scope] && amf_scope_options[scope][:only])
         members = amf_scope_options[scope][:only]
       elsif klass.respond_to?(:flex_members)
@@ -46,6 +54,10 @@ module RAMF
         members -= amf_scope_options[scope][:except] if amf_scope_options[scope]
       end
       return members
+    end
+    
+    def superclass_has_remoting?
+      klass.superclass && klass.superclass.instance_variable_get("@flex_remoting")
     end
     
   end
