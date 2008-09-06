@@ -1,6 +1,5 @@
 
-$:.unshift(File.dirname(__FILE__)) unless
-  $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+$:.unshift(File.dirname(__FILE__)) unless $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 require 'stringio'
 
 #Extensions to existing Ruby classes.
@@ -27,23 +26,21 @@ require 'ramf/serializer'
 
 module RAMF
   class NullLogger
-    def debug(message)
-      
-    end
+    def debug(message); end;
   end
-  if defined?(RAMF_DEBUG) #&& !defined(RAMF::DEBUG_LOG)
+  
+  def self.define_debug_logger
     begin
       puts "initializing RAMF debug log file"
       require 'fileutils'
       require 'logger'
       log_path = File.join(File.dirname(__FILE__),'../debug/debug.log')
       FileUtils.mkdir_p File.dirname(log_path)
-      DEBUG_LOG = Logger.new(log_path)
-      DEBUG_LOG.info("Initiated RAMF with debugging enabled at #{Time.now.to_s}.")
-    rescue
+      Logger.new(log_path)
+    rescue Exception=>e
+      NullLogger.new()
     end
-  else
-    DEBUG_LOG = NullLogger.new()
   end
   
+  DEBUG_LOG =  defined?(RAMF_DEBUG) ? define_debug_logger : NullLogger.new()
 end

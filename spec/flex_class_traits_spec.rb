@@ -1,13 +1,6 @@
 require File.join(File.dirname(__FILE__),'spec_helper')
 
-class DummyClass
-  
-  
-  
-  def initialize
-    @some_attribute = "attribute"
-  end
-end
+class DummyClass; end;
 
 describe RAMF::FlexClassTraits do
   

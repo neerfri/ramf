@@ -13,9 +13,10 @@ describe 'deserializer1.bin' do
   end
   
   it 'should have a header with the right properties' do
-    @amf_object.headers[0].value.should == {:userid=>"13", :password=>"1234"}
-    @amf_object.headers[0].name.should == "Credentials"
-    @amf_object.headers[0].must_understand.should be(0)
+    header = @amf_object.get_header_by_key("Credentials")
+    header.value.should == {:userid=>"13", :password=>"1234"}
+    header.name.should == "Credentials"
+    header.must_understand.should be(0)
   end
   
   it 'should have 1 message' do

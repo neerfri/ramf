@@ -14,16 +14,28 @@ describe RAMF::Serializer::Base do
       header = RAMF::AMFHeader.new("TestHeader",[1,2],true)
       @amfobject.add_header header
       @amfobject.add_message new_amf_message(nil)
-      p amf_string = @serializer.write(@amfobject)
+      amf_string = @serializer.write(@amfobject)
       @deserializer = RAMF::Deserializer::Base.new(StringIO.new(amf_string))
       @response = @deserializer.process
-      @header = @response.headers[0]
+      @header = @response.get_header_by_key("TestHeader")
     end
     
-    
-    it 'should ' do
-      p @header
+    it 'should have a header named "TestHeader"' do
+      @header.name.should == "TestHeader"
     end
+    
+    describe "TestHeader" do
+    
+      it 'should have value [1, 2]' do
+        @header.value.should == [1,2]
+      end
+      
+      it 'should be a must-understand' do
+        @header.must_understand.should == 1
+      end
+      
+    end
+    
   end
   
   describe '@encoded_object(Example 1)' do
@@ -35,8 +47,10 @@ describe RAMF::Serializer::Base do
       value.double_attribute = 34.523
       value.integer_attribute = 5
       value.symbol_attribute = :some_symbol
-      value.array_attribute = [123456, 78910111213, 12345678910]
+      value.array_attribute = [16300, 2097000, 268435400]
       value.time_attribute = Time.now
+      value.true_attribute = true
+      value.false_attribute = false
       value.date_attribute = Date.today
       value.xml_attribute = REXML::Document.new("<xml><e>1</e><e>2</e></xml>")
       value.byte_array_attribute = StringIO.new("Some Binary Stream To Serialize")
@@ -61,8 +75,8 @@ describe RAMF::Serializer::Base do
       @encoded_object.symbol_attribute.should == "some_symbol"
     end
     
-    it 'should respond to array_attribute with [123456, 78910111213, 12345678910]' do
-      @encoded_object.array_attribute.should == [123456, 78910111213, 12345678910]
+    it 'should respond to array_attribute with [16300, 2097000, 268435400]' do
+      @encoded_object.array_attribute.should == [16300, 2097000, 268435400]
     end
     
     it 'should respond to :integer_attribute with 5' do
@@ -98,6 +112,14 @@ describe RAMF::Serializer::Base do
     
     it ':byte_array_attribute attribute should be a stream containing "Some Binary Stream To Serialize"' do
       @encoded_object.byte_array_attribute.read.should == "Some Binary Stream To Serialize"
+    end
+    
+    it 'should respond_to :true_attribute with true' do
+      @encoded_object.true_attribute.should == true
+    end
+    
+    it 'should respond_to :false_attribute with false' do
+      @encoded_object.false_attribute.should == false
     end
     
   end

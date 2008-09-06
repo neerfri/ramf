@@ -4,6 +4,8 @@ module RAMF
       include RAMF::IO::CommonReadWrite
       include RAMF::IO::ReferenceTableUser
       
+      class UnknowAMFVersion <StandardError; end;
+      
       def initialize(stream)
         @stream = stream
         @amf_object = RAMF::AMFObject.new
@@ -18,11 +20,7 @@ module RAMF
       
       def read_preamble
         version = readU8(@stream)
-        if version != 0 && version != 3
-          #TODO: replace this with a proper error object
-          raise  "The amf version is incorrect"
-        end
-        
+        raise UnknowAMFVersion, "Unknow amf version: #{version}" if version != 0 && version != 3 
         client = readU8(@stream)
         @amf_object.version, @amf_object.client = version, client
       end
