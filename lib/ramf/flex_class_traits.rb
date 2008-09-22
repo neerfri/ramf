@@ -9,7 +9,7 @@ module RAMF
     
     def initialize(klass,is_dynamic, options = {})
       @klass = klass
-      @amf_scope_options = (superclass_has_remoting? ? klass.superclass.flex_remoting.amf_scope_options.dup : {})
+      @amf_scope_options = (superclass_with_remoting(klass) ? superclass_with_remoting(klass).flex_remoting.amf_scope_options.dup : {})
       @members = {}
       self.name= klass.name
       @is_dynamic = is_dynamic
@@ -26,8 +26,8 @@ module RAMF
     end
     
     def transient_members
-      if superclass_has_remoting?
-        (@transient_members + klass.superclass.flex_remoting.transient_members).uniq
+      if superclass_with_remoting(klass)
+        (@transient_members + superclass_with_remoting(klass).flex_remoting.transient_members).uniq
       else
         @transient_members
       end
@@ -45,7 +45,7 @@ module RAMF
     private
         
     def find_members(scope)
-      members = (superclass_has_remoting? ? klass.superclass.flex_remoting.members(scope) : []) + @defined_members
+      members = (superclass_with_remoting(klass) ? superclass_with_remoting(klass).flex_remoting.members(scope) : []) + @defined_members
       if (amf_scope_options[scope] && amf_scope_options[scope][:only])
         members = amf_scope_options[scope][:only]
       elsif klass.respond_to?(:flex_members)
@@ -56,8 +56,13 @@ module RAMF
       return members
     end
     
-    def superclass_has_remoting?
-      klass.superclass && klass.superclass.instance_variable_get("@flex_remoting")
+    #finds the first super class of <tt>klass</tt> the has remoting initialized
+    def superclass_with_remoting(klass)
+      if klass.superclass.nil? || klass.superclass.instance_variable_get("@flex_remoting")
+        klass.superclass
+      else
+        superclass_with_remoting(klass.superclass)
+      end
     end
     
   end
