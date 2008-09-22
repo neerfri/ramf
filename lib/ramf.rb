@@ -6,6 +6,7 @@ require 'stringio'
 require 'ramf/flex_class_traits'
 require 'ramf/extensions/class'
 require 'ramf/extensions/object'
+require 'ramf/extensions/exception'
 require 'ramf/extensions/active_record'
 
 #RAMF fundemental objects
