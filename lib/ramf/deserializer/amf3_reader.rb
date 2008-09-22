@@ -65,9 +65,7 @@ module RAMF
       
       # U29 Strings:
       def readU29S_value(length,stream)
-        store :string do
-          stream.read(length)
-        end
+        (str = stream.read(length)) == "" ? str : store(:string){str}
       end
       
       def readU29S_ref(ref,stream)
