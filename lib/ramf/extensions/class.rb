@@ -68,4 +68,18 @@ class Class
   def flex_remoting_members(*members)
     flex_remoting.defined_members = members
   end
+  
+  #Defines dynamic members finder block.
+  #The method should return an array of symbols or nil(for empty array)
+  #each symbol in the array will represent a dynamic member to be serialized
+  #For example:
+  # class User
+  #   flex_dynamic_members_finder do |instance, scope|
+  #     instance.instance_variable_get("@dynamic") ? [:dynamic] : []
+  #   end
+  # end
+  #this will add :dynamic to the list of dynamic members if an instance variable named @dynamic exists.
+  def flex_dynamic_members_finder(&block)
+    flex_remoting.dynamic_members_finders.push(block)
+  end
 end

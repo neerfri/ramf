@@ -125,7 +125,7 @@ module RAMF
           #write sealed members
           writeU29O_object_members(object, stream)
           #write dynamic members
-          if object.class.flex_remoting.is_dynamic && object.respond_to?(:flex_dynamic_members)
+          if object.class.flex_remoting.is_dynamic
             writeU29O_object_dynamic_members(object, stream) 
           end
         end
@@ -135,14 +135,16 @@ module RAMF
       def  writeU29O_object_members(object,stream)
         RAMF::DEBUG_LOG.debug "Writing sealed members for #{object.inspect}"
         object.class.flex_remoting.members.each do |member|
-          RAMF::DEBUG_LOG.debug "Writing sealed member #{member}"
+          RAMF::DEBUG_LOG.debug "Writing sealed member #{member}: #{object.send(member)}"
           write_value_type(object.send(member), stream)
         end
       end
       
       def writeU29O_object_dynamic_members(object, stream)
         RAMF::DEBUG_LOG.debug "Writing dynamic members for #{object.inspect}"
-        object.flex_dynamic_members.each do |member_name, member_value|
+        RAMF::DEBUG_LOG.debug "Dynamic members are: #{object.class.flex_remoting.dynamic_members(object).inspect}"
+        #We should add scope here... (and actually all over the place...
+        object.class.flex_remoting.dynamic_members(object).each do |member_name, member_value|
           RAMF::DEBUG_LOG.debug "Writing dynamic member #{member_name}"
           write_utf8_vr(member_name.to_s, stream)
           write_value_type(member_value, stream)

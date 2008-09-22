@@ -1,10 +1,10 @@
 require File.join(File.dirname(__FILE__),'spec_helper')
 
-class DummyClass; end;
+class DummyClass;end;
 
 describe RAMF::FlexClassTraits do
   
-  after(:each) do
+  before(:each) do
     DummyClass.instance_variable_set('@flex_remoting',nil)
     RAMF::FlexClassTraits::KNOWN_CLASSES.delete("DummyClass")
   end
@@ -32,6 +32,21 @@ describe RAMF::FlexClassTraits do
   
   it 'should be a dynamic object by default' do
     DummyClass.flex_remoting.is_dynamic.should be(true)
+  end
+  
+  it 'should have 1 dynamic_members_finder' do
+    DummyClass.flex_remoting.dynamic_members_finders.size.should == 1
+  end
+  
+  it 'should iterate over all dynamic members finders' do
+    dc = DummyClass.new
+    dc.instance_variable_set('@attrib',"value")
+    DummyClass.flex_remoting.dynamic_members(dc).should == {:attrib=>"value"}
+  end
+  
+  it 'should increase the number of dynamic members finders by 1' do
+    lambda { DummyClass.flex_dynamic_members_finder{[:fiction_attribute]}
+    }.should change(DummyClass.flex_remoting.dynamic_members_finders, :size).by(1)
   end
   
 end
