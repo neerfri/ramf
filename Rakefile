@@ -37,12 +37,12 @@ spec = Gem::Specification.new do |s|
   s.homepage = "http://ramf.saveanalien.com"
   s.platform = Gem::Platform::RUBY
   s.summary = "An AMF serializer/deserializer for ruby"
-  s.files = FileList["{lib}/**/*","Rakefile","LICENSE",].to_a
+  s.files = FileList["{lib}/**/*","Rakefile","LICENSE","README"].to_a
   s.require_path = "lib"
 #  s.autorequire = "ramf"
   s.test_files = FileList["{spec}/**/*"].to_a
   s.has_rdoc = true
-  s.rdoc_options << '--main README' << '--line-numbers'
+  s.rdoc_options << '--line-numbers' << '--inline-source'
   s.extra_rdoc_files = ["README"]
 #  s.add_dependency("dependency", ">= 0.x.x")
 end
