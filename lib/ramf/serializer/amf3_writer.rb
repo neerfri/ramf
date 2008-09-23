@@ -16,38 +16,38 @@ module RAMF
       
       def write_value_type(object,stream)
         case
-          when object.nil?
-            stream << AMF3_NULL_MARKER
-          when object.is_a?(FalseClass)
-            stream << AMF3_FALSE_MARKER
-          when object.is_a?(TrueClass)
-            stream << AMF3_TRUE_MARKER
           when object.is_a?(Numeric)
               if (object.is_a?(Fixnum) && object >= AMF3_INTEGER_MIN && object <= AMF3_INTEGER_MAX) #check valid range for 29bits
-                stream << AMF3_INTEGER_MARKER
+                stream.write AMF3_INTEGER_MARKER
                 writeU29(object,stream)
               else
-                stream << AMF3_DOUBLE_MARKER
+                stream.write AMF3_DOUBLE_MARKER
                 write_double(object.to_f,stream)
               end
           when object.is_a?(String) || object.is_a?(Symbol)
-            stream << AMF3_STRING_MARKER
+            stream.write AMF3_STRING_MARKER
             write_utf8_vr(object.to_s,stream)
-          when object.is_a?(Array)
-            stream << AMF3_ARRAY_MARKER
-            write_array_type(object, stream)
+          when object.nil?
+            stream.write AMF3_NULL_MARKER
+          when object.is_a?(FalseClass)
+            stream.write AMF3_FALSE_MARKER
+          when object.is_a?(TrueClass)
+            stream.write AMF3_TRUE_MARKER
           when object.is_a?(Date) || object.is_a?(Time)
-            stream << AMF3_DATE_MARKER
+            stream.write AMF3_DATE_MARKER
             writeU29D(object, stream)
+          when object.is_a?(Array)
+            stream.write AMF3_ARRAY_MARKER
+            write_array_type(object, stream)
           when object.class.name == "REXML::Document"
-            stream << AMF3_XML_STRING_MARKER
+            stream.write AMF3_XML_STRING_MARKER
             writeU29X(object, stream)
           when object.is_a?(::IO) || object.is_a?(::StringIO)
-            stream << AMF3_BYTE_ARRAY_MARKER
+            stream.write AMF3_BYTE_ARRAY_MARKER
             writeU29B(object, stream)
           else
-            RAMF::DEBUG_LOG.debug "Writing object #{object.inspect}, position in stream: #{stream.pos}"
-            stream << AMF3_OBJECT_MARKER
+#            RAMF::DEBUG_LOG.debug "Writing object #{object.inspect}, position in stream: #{stream.pos}"
+            stream.write AMF3_OBJECT_MARKER
             writeU29O(object,stream)
         end
       end
@@ -56,7 +56,7 @@ module RAMF
       
       #writes an integer encoded as U29
       def writeU29(int,stream)
-        stream << (@U29_integer_mappings[int] ||= calculate_integer_U29(int))
+        stream.write(@U29_integer_mappings[int] ||= calculate_integer_U29(int))
       end
       
       def calculate_integer_U29(int)
@@ -86,7 +86,7 @@ module RAMF
         else
           store :string, str
           writeU29((str.length << 1) | 1, stream)
-          stream << str
+          stream.write str
         end
       end
       
@@ -101,7 +101,7 @@ module RAMF
       
       def writeU29A_value(array, stream)
         writeU29((array.length << 1) | 1, stream)
-        stream << AMF3_EMPTY_STRING #ruby's array is always a strict array
+        stream.write AMF3_EMPTY_STRING #ruby's array is always a strict array
         array.each{|item| write_value_type(item, stream) }
       end
             
@@ -115,12 +115,12 @@ module RAMF
             writeU29((index << 2) | 0x01,stream)
           else
             #We need to write the class traits
-            RAMF::DEBUG_LOG.debug "Writing class traits for #{object.class}"
+#            RAMF::DEBUG_LOG.debug "Writing class traits for #{object.class}"
             store :class, object.class
             writeU29O_object_traits(object,stream)
           end
           #Now write the object
-          RAMF::DEBUG_LOG.debug "Writing object attributes #{object.inspect}"
+#          RAMF::DEBUG_LOG.debug "Writing object attributes #{object.inspect}"
           store :object, object
           #write sealed members
           writeU29O_object_members(object, stream)
@@ -133,19 +133,19 @@ module RAMF
       
       
       def  writeU29O_object_members(object,stream)
-        RAMF::DEBUG_LOG.debug "Writing #{object.class.flex_remoting.members.size} sealed members for #{object.class.name}: #{object.class.flex_remoting.members.inspect}"
+#        RAMF::DEBUG_LOG.debug "Writing #{object.class.flex_remoting.members.size} sealed members for #{object.class.name}: #{object.class.flex_remoting.members.inspect}"
         object.class.flex_remoting.members.each do |member|
-          RAMF::DEBUG_LOG.debug "Writing sealed member #{member}: #{object.send(member)}"
+#          RAMF::DEBUG_LOG.debug "Writing sealed member #{member}: #{object.send(member)}"
           write_value_type(object.send(member), stream)
         end
       end
       
       def writeU29O_object_dynamic_members(object, stream)
-        RAMF::DEBUG_LOG.debug "Writing dynamic members for #{object.inspect}"
-        RAMF::DEBUG_LOG.debug "Dynamic members are: #{object.class.flex_remoting.dynamic_members(object).inspect}"
+#        RAMF::DEBUG_LOG.debug "Writing dynamic members for #{object.inspect}"
+#        RAMF::DEBUG_LOG.debug "Dynamic members are: #{object.class.flex_remoting.dynamic_members(object).inspect}"
         #We should add scope here... (and actually all over the place...
         object.class.flex_remoting.dynamic_members(object).each do |member_name, member_value|
-          RAMF::DEBUG_LOG.debug "Writing dynamic member #{member_name}"
+#          RAMF::DEBUG_LOG.debug "Writing dynamic member #{member_name}"
           write_utf8_vr(member_name.to_s, stream)
           write_value_type(member_value, stream)
         end
@@ -156,9 +156,9 @@ module RAMF
         flex_remoting = object.class.flex_remoting
         member_count = flex_remoting.members.size
         mask = flex_remoting.is_dynamic ? 0x0B : 0x03
-        RAMF::DEBUG_LOG.debug "Writing traits marker member count:#{member_count}, mask:#{mask.to_s(2)}"
+#        RAMF::DEBUG_LOG.debug "Writing traits marker member count:#{member_count}, mask:#{mask.to_s(2)}"
         writeU29((member_count << 4) | mask, stream)
-        RAMF::DEBUG_LOG.debug "Writing traits name: #{flex_remoting.name.inspect}"
+#        RAMF::DEBUG_LOG.debug "Writing traits name: #{flex_remoting.name.inspect}"
         write_utf8_vr(flex_remoting.name, stream) #Write class name
         flex_remoting.members.each {|m| write_utf8_vr(m.to_s, stream)} #Write class's sealed members
       end
@@ -189,7 +189,7 @@ module RAMF
       
       def writeU29X_value(xml, stream)
         writeU29((xml.to_s.length << 1) | 1, stream)
-        stream << xml.to_s
+        stream.write xml.to_s
       end
       
       def writeU29B(io, stream)
@@ -204,7 +204,7 @@ module RAMF
       def writeU29B_value(io, stream)
         writeU29((io.length << 1) | 1, stream)
         io.rewind
-        stream << io.read
+        stream.write io.read
       end
       
     end

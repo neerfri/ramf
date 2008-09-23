@@ -32,7 +32,7 @@ module RAMF
           #unknow message size so:
           writeU32(-1,@stream)
           if @amf_version == 3
-            @stream << AMF3_TYPE_MARKER
+            @stream.write AMF3_TYPE_MARKER
             AMF3Writer.new.write_value_type(message.value,@stream)
           elsif @amf_version == 0
             AMF0Writer.new.write_value_type(message.value,@stream)

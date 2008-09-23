@@ -42,30 +42,30 @@ module RAMF
       end
       
       def writeU8(val, stream)
-        stream << [val].pack('C')
+        stream.write [val].pack('C')
       end
       
       def writeU16(val,stream)
-        stream << [val].pack('n')
+        stream.write [val].pack('n')
       end
       
       #write an unsigned 32-bit integer in network (big-endian) byte order
       def writeU32(val,stream)
-        stream << [val].pack('N')
+        stream.write [val].pack('N')
       end
       
       def writeUTF8(string,stream)
         writeU16(string.length,stream) 
-        stream << string
+        stream.write string
       end
       
       def writeUTF8Long(string,stream)
         writeU32(string.length, stream)
-        stream << string
+        stream.write string
       end
       
       def write_double(val,stream)
-        stream << ( @double_mappings[val] ||= [val].pack('G'))
+        stream.write( @double_mappings[val] ||= [val].pack('G'))
       end
       
     end
