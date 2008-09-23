@@ -18,10 +18,6 @@ module RAMF
       
       flex_alias ""
       
-      flex_dynamic_members_finder do |instance, scope|
-        instance.keys
-      end
-      
       def method_missing(method_name,*args,&block)
         method_name = method_name.to_s 
         if method_name[method_name.length-1,1] == "="
@@ -32,9 +28,9 @@ module RAMF
       end
       
       
-      def flex_dynamic_members(scope = :default)
-        self.keys.inject({}) {|mem, key| mem[key.to_s] = self[key]; mem}
-      end
+#      def flex_dynamic_members(scope = :default)
+#        self.keys.inject({}) {|mem, key| mem[key.to_s] = self[key]; mem}
+#      end
       
     end
   end
