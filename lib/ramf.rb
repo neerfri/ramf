@@ -5,6 +5,7 @@ require 'stringio'
 #Extensions to existing Ruby classes.
 require 'ramf/flex_class_traits'
 require 'ramf/extensions/class'
+require 'ramf/extensions/hash'
 require 'ramf/extensions/object'
 require 'ramf/extensions/exception'
 
@@ -42,5 +43,5 @@ module RAMF
     end
   end
   
-  DEBUG_LOG =  defined?(RAMF_DEBUG) ? define_debug_logger : NullLogger.new()
+  DEBUG_LOG =  defined?(RAMF_DEBUG) || ENV["RAMF_DEBUG"] ? define_debug_logger : NullLogger.new()
 end
