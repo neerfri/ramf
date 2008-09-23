@@ -133,7 +133,7 @@ module RAMF
       
       
       def  writeU29O_object_members(object,stream)
-        RAMF::DEBUG_LOG.debug "Writing sealed members for #{object.inspect}"
+        RAMF::DEBUG_LOG.debug "Writing #{object.class.flex_remoting.members.size} sealed members for #{object.class.name}: #{object.class.flex_remoting.members.inspect}"
         object.class.flex_remoting.members.each do |member|
           RAMF::DEBUG_LOG.debug "Writing sealed member #{member}: #{object.send(member)}"
           write_value_type(object.send(member), stream)
