@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'ruby-debug'
 module RAMF
   #The term 'traits' is used to describe the defining characteristics of a class. (amf3 spec document section 3.12)
   class FlexClassTraits
@@ -19,7 +21,9 @@ module RAMF
     
     def name=(new_name)
       new_name = new_name.to_s
-      raise("An ActionScript with that name already exists.") if KNOWN_CLASSES[new_name] && new_name!=@name
+      if KNOWN_CLASSES[new_name] && KNOWN_CLASSES[new_name].name!=klass.name
+        raise("An ActionScript class named '#{new_name}' already exists.")
+      end
       KNOWN_CLASSES.delete(@name)
       @name = new_name
       KNOWN_CLASSES[new_name] = klass
