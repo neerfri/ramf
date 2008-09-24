@@ -1,6 +1,8 @@
-require File.join(File.dirname(__FILE__),'spec_helper')
+require File.join(File.dirname(__FILE__),'../spec_helper')
 require 'rexml/document'
 
+#This spec checks RAMF::Serializer::Base, this means it uses large scale examples to check the
+#overal functionality of the serialization process
 describe RAMF::Serializer::Base do
   
   before(:all) do
@@ -161,11 +163,10 @@ describe RAMF::Serializer::Base do
   end
   
     
+  def new_amf_message(value)
+    RAMF::AMFMessage.new(:target_uri=>'1\onResult',
+                         :response_uri=>"null",
+                         :value=>value)
+  end
   
-end
-
-def new_amf_message(value)
-  RAMF::AMFMessage.new(:target_uri=>'1\onResult',
-                       :response_uri=>"null",
-                       :value=>value)
 end
