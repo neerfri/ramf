@@ -5,8 +5,8 @@ require 'stringio'
 #Extensions to existing Ruby classes.
 require 'ramf/flex_class_traits'
 require 'ramf/extensions/class'
-require 'ramf/extensions/hash'
 require 'ramf/extensions/object'
+require 'ramf/extensions/hash'
 require 'ramf/extensions/exception'
 
 #RAMF fundemental objects
