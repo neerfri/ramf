@@ -7,16 +7,17 @@ module RAMF
     KNOWN_CLASSES = {}
     
     attr_reader :klass, :members, :name
-    attr_accessor :transient_members, :amf_scope_options, :is_dynamic
+    attr_accessor :transient_members, :amf_scope_options, :is_dynamic, :members_evaluator
     
     def initialize(klass,is_dynamic, options = {})
       @klass = klass
-      @amf_scope_options = (s_w_r(klass) ? s_w_r(klass).flex_remoting.amf_scope_options.dup : {})
+      @amf_scope_options = get_attribute_from_super({}, :amf_scope_options)
       @members = {}
       self.name= klass.name
       @is_dynamic = is_dynamic
       @defined_members = []
       @transient_members = options[:transient] || []
+      @members_evaluator
     end
     
     def name=(new_name)
@@ -30,11 +31,7 @@ module RAMF
     end
     
     def transient_members
-      if s_w_r(klass)
-        (@transient_members + s_w_r(klass).flex_remoting.transient_members).uniq
-      else
-        @transient_members
-      end
+      (@transient_members + get_attribute_from_super([], :transient_members)).uniq
     end
     
     def members(scope = :default)
@@ -46,7 +43,7 @@ module RAMF
     end
     
     def dynamic_members_finders
-      @dynamic_members_finders ||= s_w_r(klass) ? s_w_r(klass).flex_remoting.dynamic_members_finders.dup : []
+      @dynamic_members_finders ||= get_attribute_from_super([], :dynamic_members_finders)
     end
     
     def dynamic_members(instance, scope = :default)
@@ -81,7 +78,7 @@ module RAMF
     private
         
     def find_members(scope)
-      members = (s_w_r(klass) ? s_w_r(klass).flex_remoting.members(scope) : []) + @defined_members
+      members = get_attribute_from_super([], :members, scope) + @defined_members
       if (amf_scope_options[scope] && amf_scope_options[scope][:only])
         members = amf_scope_options[scope][:only]
       elsif klass.respond_to?(:flex_members)
@@ -100,7 +97,15 @@ module RAMF
         superclass_with_remoting(klass.superclass)
       end
     end
-    alias_method :s_w_r, :superclass_with_remoting
+    
+    
+    def get_attribute_from_super(default, attribute, *args)
+      if superclass_with_remoting(klass)
+        superclass_with_remoting(klass).flex_remoting.send(attribute,*args).dup
+      else
+        default
+      end
+    end
     
   end
 end
