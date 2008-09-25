@@ -97,27 +97,13 @@ module RAMF
       return members
     end
     
-    #finds the first super class of <tt>klass</tt> the has remoting initialized
-    def superclass_with_remoting(klass)
-      klass.superclass
-#      if klass.superclass.nil? || klass.superclass.flex_remoting
-#        klass.superclass
-#      else
-#        superclass_with_remoting(klass.superclass)
-#      end
-    end
-    
     def get_duplicate_from_super(default, attribute, *args)
       get_attribute_from_super(default, attribute, *args).dup
     end
     
     
     def get_attribute_from_super(default, attribute, *args)
-      if superclass_with_remoting(klass)
-        superclass_with_remoting(klass).flex_remoting.send(attribute,*args)
-      else
-        default
-      end
+      klass.superclass ? klass.superclass.flex_remoting.send(attribute,*args) : default
     end
     
   end
