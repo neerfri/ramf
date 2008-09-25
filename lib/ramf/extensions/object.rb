@@ -4,11 +4,11 @@ class Object
     instance.instance_variables.map{|v| v[1..-1].to_sym}
   end
   
-  flex_members_evaluator do |instance, member|
+  flex_members_reader do |instance, member|
     instance.send(member)
   end
   
-  flex_dynamic_members_evaluator do |instance, member|
+  flex_dynamic_members_reader do |instance, member|
     case
       when instance.respond_to?(member)
         instance.send(member)

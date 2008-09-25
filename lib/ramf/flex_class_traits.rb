@@ -11,7 +11,7 @@ module RAMF
     
     attr_reader :klass, :members, :name
     attr_accessor :transient_members, :amf_scope_options, :is_dynamic
-    attr_accessor :dynamic_members_evaluator, :members_evaluator
+    attr_accessor :dynamic_members_reader, :members_reader
     
     def initialize(klass,is_dynamic, options = {})
       @klass = klass
@@ -21,10 +21,10 @@ module RAMF
       @is_dynamic = is_dynamic
       @defined_members = []
       @transient_members = options[:transient] || []
-      @members_evaluator = get_attribute_from_super(Proc.new{raise "No members evaluator defined for #{klass}"},
-                                                    :members_evaluator)
-      @dynamic_members_evaluator = get_attribute_from_super(Proc.new{raise "No dynamic members evaluator defined for #{klass}"}, 
-                                                            :dynamic_members_evaluator)
+      @members_reader = get_attribute_from_super(Proc.new{raise "No members reader defined for #{klass}"},
+                                                    :members_reader)
+      @dynamic_members_reader = get_attribute_from_super(Proc.new{raise "No dynamic members reader defined for #{klass}"}, 
+                                                            :dynamic_members_reader)
     end
     
     def name=(new_name)
@@ -61,7 +61,7 @@ module RAMF
       except = scope_opt && scope_opt[:except] ? scope_opt[:except] : []
       members -= except
       members.inject({}) do |hash,member|
-        hash[member] = dynamic_members_evaluator.call(instance,member)
+        hash[member] = dynamic_members_reader.call(instance,member)
         hash
       end
     end

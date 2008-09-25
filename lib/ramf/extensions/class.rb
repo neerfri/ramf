@@ -87,26 +87,26 @@ class Class
   #For example:
   # class User
   #   attr_accessor :my_other_data #this is a hash...
-  #   flex_members_evaluator do |obj, member|
+  #   flex_members_reader do |obj, member|
   #     obj.my_other_data.has_key?(member) ? obj.my_other_data[member] : obj.send(member)
   #   end
   # end
   #if the hash <tt>my_other_data</tt> has key <tt>member</tt> get it from the hash,
   #otherwise get it from calling the appropriate method
-  def flex_members_evaluator(&block)
-    flex_remoting.members_evaluator = block
+  def flex_members_reader(&block)
+    flex_remoting.members_reader = block
   end
   
   #defines a callback to get the value of the object's dynamic members.
   #For example:
   # class User
   #   attr_accessor :my_dynamic_members #this is a hash...
-  #   flex_dynamic_members_evaluator do |obj, member|
+  #   flex_dynamic_members_reader do |obj, member|
   #     obj.my_dynamic_members[member]
   #   end
   # end
   #this will get all dynamic members from the hash <tt>my_dynamic_members</tt>
-  def flex_dynamic_members_evaluator(&block)
-    flex_remoting.dynamic_members_evaluator = block
+  def flex_dynamic_members_reader(&block)
+    flex_remoting.dynamic_members_reader = block
   end
 end
