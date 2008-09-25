@@ -8,6 +8,10 @@ class Object
     instance.send(member)
   end
   
+  flex_members_writer do |obj, key, value|
+    obj.respond_to?("#{key}=") ? obj.send("#{key}=",value) : obj.instance_variable_set("@#{key}",value)
+  end
+
   flex_dynamic_members_reader do |instance, member|
     case
       when instance.respond_to?(member)
@@ -25,5 +29,9 @@ class Object
         end
     end
   end
-
+  
+  flex_dynamic_members_writer do |instance, member, value|
+    instance.send("#{member}=", value)
+  end
+  
 end

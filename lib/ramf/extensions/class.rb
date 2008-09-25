@@ -83,6 +83,33 @@ class Class
     flex_remoting.dynamic_members_finders.push(block)
   end
   
+  #defines a callback to set the value of the object's members.
+  #For example:
+  # class User
+  #   attr_accessor :my_other_data #this is a hash...
+  #   flex_members_reader do |obj, member, value|
+  #     obj.my_other_data.has_key?(member) ? obj.my_other_data[member]=value : obj.send(member.to_s+"=",value)
+  #   end
+  # end
+  #if the hash <tt>my_other_data</tt> has key <tt>member</tt> insert the value to the hash,
+  #otherwise use a setter method
+  def flex_members_writer(&block)
+    flex_remoting.members_writer = block
+  end
+  
+  #defines a callback to set the value of the object's dynamic members.
+  #For example:
+  # class User
+  #   attr_accessor :my_dynamic_members #this is a hash...
+  #   flex_dynamic_members_reader do |obj, member, value|
+  #     obj.my_dynamic_members[member] = value
+  #   end
+  # end
+  #this will set all dynamic members to the hash <tt>my_dynamic_members</tt>
+  def flex_dynamic_members_writer(&block)
+    flex_remoting.dynamic_members_writer = block
+  end
+  
   #defines a callback to get the value of the object's members.
   #For example:
   # class User

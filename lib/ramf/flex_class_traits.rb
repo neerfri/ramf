@@ -11,6 +11,7 @@ module RAMF
     
     attr_reader :klass, :members, :name
     attr_accessor :transient_members, :amf_scope_options, :is_dynamic
+    attr_accessor :dynamic_members_writer, :members_writer
     attr_accessor :dynamic_members_reader, :members_reader
     
     def initialize(klass,is_dynamic, options = {})
@@ -21,10 +22,10 @@ module RAMF
       @is_dynamic = is_dynamic
       @defined_members = []
       @transient_members = options[:transient] || []
-      @members_reader = get_attribute_from_super(Proc.new{raise "No members reader defined for #{klass}"},
-                                                    :members_reader)
-      @dynamic_members_reader = get_attribute_from_super(Proc.new{raise "No dynamic members reader defined for #{klass}"}, 
-                                                            :dynamic_members_reader)
+      [:dynamic_members_writer, :members_writer, :dynamic_members_reader, :members_reader].each do |a|
+        default = Proc.new{raise "No #{a} defined for #{klass}"}
+        instance_variable_set("@#{a}", get_attribute_from_super(default, a))
+      end
     end
     
     def name=(new_name)

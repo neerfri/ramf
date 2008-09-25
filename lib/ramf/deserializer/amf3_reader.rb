@@ -109,7 +109,7 @@ module RAMF
       def read_object_dynamic_members(stream, obj)
         member_name = readUTF_8_vr(stream)
         while (member_name != "") do #run until we get to the empty-string marker
-          obj.send("#{member_name}=", read_value_type(stream))
+          obj.class.flex_remoting.dynamic_members_writer.call(obj, member_name, read_value_type(stream))
           member_name = readUTF_8_vr(stream)
         end
         obj
@@ -167,7 +167,7 @@ module RAMF
       def read_object_member_values(stream,flex_class,obj)
         flex_class.members.each do|key|
           value = read_value_type(stream)
-          obj.respond_to?("#{key}=") ? obj.send("#{key}=",value) : obj.instance_variable_set("@#{key}",value)
+          obj.class.flex_remoting.members_writer.call(obj, key, value)
         end
         obj
       end
