@@ -142,7 +142,7 @@ module RAMF
         unless class_name=="" || (/\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/ =~ class_name)
          raise NameError, "#{class_name.inspect} is not a valid constant name!"
         end
-        RAMF::FlexClassTraits::KNOWN_CLASSES[class_name] || (Object.module_eval(class_name) rescue create_class(class_signature))
+        RAMF::FlexClassTraits.find_ruby_class(class_name) || (Object.module_eval(class_name) rescue create_class(class_signature))
       end
       
       def create_class(class_signature)

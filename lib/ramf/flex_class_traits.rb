@@ -5,6 +5,10 @@ module RAMF
     
     KNOWN_CLASSES = {}
     
+    def self.find_ruby_class(name)
+      Object.module_eval(KNOWN_CLASSES[name]) rescue nil
+    end
+    
     attr_reader :klass, :members, :name
     attr_accessor :transient_members, :amf_scope_options, :is_dynamic
     attr_accessor :dynamic_members_evaluator, :members_evaluator
@@ -25,12 +29,12 @@ module RAMF
     
     def name=(new_name)
       new_name = new_name.to_s
-      if KNOWN_CLASSES[new_name] && KNOWN_CLASSES[new_name].name!=klass.name
+      if KNOWN_CLASSES[new_name] && KNOWN_CLASSES[new_name]!=klass.name
         raise("An ActionScript class named '#{new_name}' already exists.")
       end
       KNOWN_CLASSES.delete(@name)
       @name = new_name
-      KNOWN_CLASSES[new_name] = klass
+      KNOWN_CLASSES[new_name] = klass.name
     end
     
     def transient_members
