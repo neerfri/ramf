@@ -61,22 +61,6 @@ module RAMF
       except = scope_opt && scope_opt[:except] ? scope_opt[:except] : []
       members -= except
       members.inject({}) do |hash,member|
-#        value = case 
-#                  when instance.respond_to?(member)
-#                    instance.send(member)
-#                  when instance.instance_variable_defined?("@#{member}")
-#                    instance.instance_variable_get("@#{member}")
-#                  when instance.respond_to?(:[])
-#                    instance[member]
-#                  else
-#                    begin
-#                      instance.send(member)
-#                    rescue NoMethodError=>e
-#                      warn("***Warning: Couldn't find value from dynamic member #{member} in object #{instance.class.name}!")
-#                      nil
-#                    end
-#                end
-#        hash[member]=value
         hash[member] = dynamic_members_evaluator.call(instance,member)
         hash
       end
