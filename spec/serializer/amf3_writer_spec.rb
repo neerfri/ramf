@@ -4,7 +4,7 @@ describe RAMF::Serializer::AMF3Writer do
   
   describe 'calculate_integer_U29 method' do
     before(:all) do
-      @method = RAMF::Serializer::AMF3Writer.new.method(:calculate_integer_U29)
+      @method = RAMF::Serializer::AMF3Writer.new(:default).method(:calculate_integer_U29)
     end
     
     it 'should return "\000" for 0' do

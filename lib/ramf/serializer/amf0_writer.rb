@@ -5,10 +5,11 @@ module RAMF
       include RAMF::IO::CommonReadWrite
       include RAMF::IO::ReferenceTableUser
       
-      def initialize(reference_table = nil)
+      def initialize(scope, reference_table = nil)
         register_reference_table(reference_table)
         @U29_integer_mappings = {}
         @double_mappings = {}
+        @scope = scope
       end
       
       def write_value_type(object,stream)
@@ -72,7 +73,7 @@ module RAMF
       
       def write_anonymous_object(object, stream)
         properties_hash = {}
-        object.class.flex_remoting.members.each {|member| properties_hash[member] = object.send(member)}
+        object.class.flex_remoting.members(@scope).each {|member| properties_hash[member] = object.send(member)}
         object.flex_dynamic_members.each {|member, value|properties_hash[member] = value }
         write_object_properties(properties_hash, stream)
       end

@@ -42,7 +42,7 @@ module RAMF
       (@transient_members + get_attribute_from_super([], :transient_members)).uniq
     end
     
-    def members(scope = :default)
+    def members(scope = RAMF::Configuration::DEFAULT_SCOPE)
       @members[scope] ||= find_members(scope)
     end
     
@@ -54,7 +54,7 @@ module RAMF
       @dynamic_members_finders ||= get_duplicate_from_super([], :dynamic_members_finders)
     end
     
-    def dynamic_members(instance, scope = :default)
+    def dynamic_members(instance, scope = RAMF::Configuration::DEFAULT_SCOPE)
       members = dynamic_members_finders.map{|b| b.call(instance, scope)}.flatten.uniq
       members -= members(scope)
       members -= transient_members

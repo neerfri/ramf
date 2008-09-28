@@ -9,7 +9,7 @@ module RAMF
         @amf_version = amf_version
       end
       
-      def write(object)
+      def write(object, scope = RAMF::Configuration::DEFAULT_SCOPE)
         #write the amf version
         writeU16(0,@stream)
         writeU16(object.headers.length,@stream)
@@ -22,7 +22,7 @@ module RAMF
           #unknow header size so:
           writeU32(-1,@stream)
           #write the header data
-          AMF0Writer.new().write_value_type(header.value,@stream)
+          AMF0Writer.new(scope).write_value_type(header.value,@stream)
         end
         
         writeU16(object.messages.length,@stream)
@@ -33,9 +33,9 @@ module RAMF
           writeU32(-1,@stream)
           if @amf_version == 3
             @stream.write AMF3_TYPE_MARKER
-            AMF3Writer.new.write_value_type(message.value,@stream)
+            AMF3Writer.new(scope).write_value_type(message.value,@stream)
           elsif @amf_version == 0
-            AMF0Writer.new.write_value_type(message.value,@stream)
+            AMF0Writer.new(scope).write_value_type(message.value,@stream)
           end
         end
         

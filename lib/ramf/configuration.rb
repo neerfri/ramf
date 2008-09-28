@@ -2,5 +2,7 @@
 module RAMF
   class Configuration
     
+    DEFAULT_SCOPE = :default
+    
   end
 end
