@@ -71,10 +71,10 @@ module RAMF
     private
         
     def find_members(scope)
-      members = get_duplicate_from_super([], :members, scope) + @defined_members
       if (amf_scope_options[scope] && amf_scope_options[scope][:only])
         members = amf_scope_options[scope][:only]
       elsif klass.respond_to?(:flex_members)
+        members = get_duplicate_from_super([], :members, scope) + @defined_members
         members += klass.flex_members
         members -= transient_members
         members -= amf_scope_options[scope][:except] if amf_scope_options[scope]
