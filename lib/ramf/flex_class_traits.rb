@@ -75,7 +75,7 @@ module RAMF
       if (amf_scope_options[scope] && amf_scope_options[scope][:only])
         members = amf_scope_options[scope][:only]
       elsif klass.respond_to?(:flex_members)
-        members = klass.flex_members
+        members += klass.flex_members
         members -= transient_members
         members -= amf_scope_options[scope][:except] if amf_scope_options[scope]
       end

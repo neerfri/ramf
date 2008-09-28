@@ -47,7 +47,6 @@ module RAMF
             stream.write AMF3_BYTE_ARRAY_MARKER
             writeU29B(object, stream)
           else
-#            RAMF::DEBUG_LOG.debug "Writing object #{object.inspect}, position in stream: #{stream.pos}"
             stream.write AMF3_OBJECT_MARKER
             writeU29O(object,stream)
         end
@@ -116,12 +115,10 @@ module RAMF
             writeU29((index << 2) | 0x01,stream)
           else
             #We need to write the class traits
-#            RAMF::DEBUG_LOG.debug "Writing class traits for #{object.class}"
             store :class, object.class
             writeU29O_object_traits(object,stream)
           end
           #Now write the object
-#          RAMF::DEBUG_LOG.debug "Writing object attributes #{object.inspect}"
           store :object, object
           #write sealed members
           writeU29O_object_members(object, stream)
@@ -134,20 +131,13 @@ module RAMF
       
       
       def  writeU29O_object_members(object,stream)
-#        RAMF::DEBUG_LOG.debug "Writing #{object.class.flex_remoting.members.size} sealed members for #{object.class.name}: #{object.class.flex_remoting.members.inspect}"
         object.class.flex_remoting.members(@scope).each do |member|
           write_value_type(object.class.flex_remoting.members_reader.call(object,member), stream)
-#          RAMF::DEBUG_LOG.debug "Writing sealed member #{member}: #{object.send(member)}"
-#          write_value_type(object.send(member), stream)
         end
       end
       
       def writeU29O_object_dynamic_members(object, stream)
-#        RAMF::DEBUG_LOG.debug "Writing dynamic members for #{object.inspect}"
-#        RAMF::DEBUG_LOG.debug "Dynamic members are: #{object.class.flex_remoting.dynamic_members(object).inspect}"
-        #We should add scope here... (and actually all over the place...
         object.class.flex_remoting.dynamic_members(object,@scope).each do |member_name, member_value|
-#          RAMF::DEBUG_LOG.debug "Writing dynamic member #{member_name}"
           write_utf8_vr(member_name.to_s, stream)
           write_value_type(member_value, stream)
         end
@@ -158,9 +148,7 @@ module RAMF
         flex_remoting = object.class.flex_remoting
         member_count = flex_remoting.members(@scope).size
         mask = flex_remoting.is_dynamic ? 0x0B : 0x03
-#        RAMF::DEBUG_LOG.debug "Writing traits marker member count:#{member_count}, mask:#{mask.to_s(2)}"
         writeU29((member_count << 4) | mask, stream)
-#        RAMF::DEBUG_LOG.debug "Writing traits name: #{flex_remoting.name.inspect}"
         write_utf8_vr(flex_remoting.name, stream) #Write class name
         flex_remoting.members(@scope).each {|m| write_utf8_vr(m.to_s, stream)} #Write class's sealed members
       end
