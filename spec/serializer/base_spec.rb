@@ -109,7 +109,7 @@ describe RAMF::Serializer::Base do
     end
     
     it 'should respond_to :byte_array_attribute with a RAMF::FlexObjects::ByteArray instance' do
-      @encoded_object.byte_array_attribute.should be_an_instance_of(RAMF::FlexObjects::ByteArray)
+      @encoded_object.byte_array_attribute.instance_of?(RAMF::FlexObjects::ByteArray).should be_true
     end
     
     it ':byte_array_attribute attribute should be a stream containing "Some Binary Stream To Serialize"' do
