@@ -1,17 +1,20 @@
 module RAMF
   module FlexObjects
-    class AcknowledgeMessage < FlexObject
+    class AcknowledgeMessage
+      flex_alias 'flex.messaging.messages.AcknowledgeMessage'
+      MEMBERS = [:messageId, :clientId, :destination, :body, :timeToLive, :timestamp, :headers, :correlationId]
+      
+      flex_remoting_members MEMBERS 
       
       def initialize(options={})
-        super("flex.messaging.messages.AcknowledgeMessage".to_sym)
-        self[:messageId] = rand_uuid
-        self[:clientId] = options[:clientId] ||rand_uuid
-        self[:destination] = nil
-        self[:body] = options[:body] || nil
-        self[:timeToLive] = 0
-        self[:timestamp] = (String(Time.new) + '00')
-        self[:headers] = {}
-        self[:correlationId] = options[:message_id]
+        @messageId = rand_uuid
+        @clientId = options[:clientId] ||rand_uuid
+        @destination = nil
+        @body = options[:body] || nil
+        @timeToLive = 0
+        @timestamp = Time.now.to_i * 100
+        @headers = {}
+        @correlationId = options[:message_id]
       end
       
       def rand_uuid
