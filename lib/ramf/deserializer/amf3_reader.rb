@@ -146,7 +146,7 @@ module RAMF
       end
       
       def create_class(class_signature)
-        class_name = class_signature.name.to_s.split(".").each{|s| s[0,1]=s[0,1].upcase!}.join("::")
+        class_name = class_signature.name.to_s.split(".").each{|s| s[0,1]=s[0,1].upcase}.join("::")
         Object.module_eval("class #{class_name};end;", __FILE__, __LINE__)
         klass = Object.module_eval(class_name, __FILE__, __LINE__)
         klass.class_eval do
