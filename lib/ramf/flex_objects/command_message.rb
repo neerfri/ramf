@@ -65,19 +65,14 @@ class RAMF::FlexObjects::CommandMessage
   MESSAGING_VERSION = "DSMessagingVersion"
   
   
-  class << self
-    
-    #construct an Operation object from the command message <tt>message</tt>
-    def parse(message)
-      case operation = message.operation.to_i
-        when CLIENT_PING_OPERATION
-          RAMF::OperationRequest.new :operation => operation, :messageId=>message.messageId
-      else
-        raise "Unimplemented Operation: #{operation} - #{OPERATION_NAMES[operation]}"
-      end
+  #construct an Operation object from the command message <tt>message</tt>
+  def to_operation
+    case operation
+      when CLIENT_PING_OPERATION
+        RAMF::OperationRequest.new :operation => operation, :messageId=>messageId
+    else
+      raise "Unimplemented Operation: #{operation} - #{OPERATION_NAMES[operation]}"
     end
-    
   end
-  
-  
+    
 end

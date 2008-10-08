@@ -16,14 +16,12 @@ class RAMF::OperationRequest
   
   #generate a response for that operation request
   #at the moment only works for ping operations
-  def response
-    ping? ? ping_response : raise("Can only create response for PING_OPERATION")
-  end
-  
-  private
-  
-  def ping_response
-    RAMF::FlexObjects::AcknowledgeMessage.new :correlationId=>messageId
+  def response(value)
+    if ping?
+      RAMF::FlexObjects::AcknowledgeMessage.new :correlationId=>messageId
+    else
+      RAMF::FlexObjects::AcknowledgeMessage.new :correlationId=>messageId, :body=>value
+    end
   end
   
 end
