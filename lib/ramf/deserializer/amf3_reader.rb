@@ -138,7 +138,7 @@ module RAMF
       end
       
       def load_or_create_class(class_signature)
-        class_name = class_signature.name.to_s
+        class_name = class_signature.name.to_s.split(".").each{|s| s[0,1]=s[0,1].upcase}.join("::")
         unless class_name=="" || (/\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/ =~ class_name)
          raise NameError, "#{class_name.inspect} is not a valid constant name!"
         end
@@ -146,7 +146,7 @@ module RAMF
       end
       
       def create_class(class_signature)
-        class_name = class_signature.name.to_s
+        class_name = class_signature.name.to_s.split(".").each{|s| s[0,1]=s[0,1].upcase!}.join("::")
         Object.module_eval("class #{class_name};end;", __FILE__, __LINE__)
         klass = Object.module_eval(class_name, __FILE__, __LINE__)
         klass.class_eval do
