@@ -138,6 +138,8 @@ module RAMF
       end
       
       def load_or_create_class(class_signature)
+#        RAILS_DEFAULT_LOGGER.info "class_signature.name:#{class_signature.name.inspect}"
+        return RAMF::FlexClassTraits.find_ruby_class(class_signature.name) if RAMF::FlexClassTraits.find_ruby_class(class_signature.name)
         class_name = class_signature.name.to_s.split(".").each{|s| s[0,1]=s[0,1].upcase}.join("::")
         unless class_name=="" || (/\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/ =~ class_name)
          raise NameError, "#{class_name.inspect} is not a valid constant name!"
@@ -147,7 +149,11 @@ module RAMF
       
       def create_class(class_signature)
         class_name = class_signature.name.to_s.split(".").each{|s| s[0,1]=s[0,1].upcase}.join("::")
-        Object.module_eval("class #{class_name};end;", __FILE__, __LINE__)
+        begin
+          Object.module_eval("class #{class_name};end;", __FILE__, __LINE__)
+        rescue NameError=>e
+          raise(NameError, "Could not create #{class_name}: #{e.message}")
+        end
         klass = Object.module_eval(class_name, __FILE__, __LINE__)
         klass.class_eval do
           class_signature.members.each {|m| attr_accessor m}

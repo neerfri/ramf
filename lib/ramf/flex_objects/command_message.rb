@@ -1,5 +1,5 @@
 class RAMF::FlexObjects::CommandMessage
-  flex_alias "Flex::Messaging::Messages::CommandMessage"
+  flex_alias "flex.messaging.messages.CommandMessage"
   flex_remoting_members :operation, :correlationId, :clientId, 
                         :messageId, :body, :timestamp, :timeToLive, 
                         :destination, :headers
@@ -64,12 +64,20 @@ class RAMF::FlexObjects::CommandMessage
   #the initial ping CommandMessage.
   MESSAGING_VERSION = "DSMessagingVersion"
   
+  def credentials_for_login_operation
+    RAMF::Util.extract_credentials(body.to_s) || {:userid => nil, :password => nil}
+  end
   
   #construct an Operation object from the command message <tt>message</tt>
   def to_operation
     case operation
       when CLIENT_PING_OPERATION
-        RAMF::OperationRequest.new :operation => operation, :messageId=>messageId
+        RAMF::OperationRequest.new :operation => operation, 
+                                   :messageId=>messageId
+      when LOGIN_OPERATION
+        RAMF::OperationRequest.new :operation => operation, 
+                                   :credentials => credentials_for_login_operation,
+                                   :messageId=>messageId
     else
       raise "Unimplemented Operation: #{operation} - #{OPERATION_NAMES[operation]}"
     end

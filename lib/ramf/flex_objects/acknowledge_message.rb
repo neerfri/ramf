@@ -5,6 +5,7 @@ module RAMF
       MEMBERS = [:messageId, :clientId, :destination, :body, :timeToLive, :timestamp, :headers, :correlationId]
       
       flex_remoting_members MEMBERS 
+      attr_accessor *MEMBERS
       
       def initialize(options={})
         @messageId = rand_uuid
@@ -14,7 +15,7 @@ module RAMF
         @timeToLive = 0
         @timestamp = Time.now.to_i * 100
         @headers = {}
-        @correlationId = options[:message_id]
+        @correlationId = options[:correlationId]
       end
       
       def rand_uuid

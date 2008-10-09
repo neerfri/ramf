@@ -11,13 +11,14 @@ module RAMF
       @amf_version = options[:amf_version] || 3
     end
     
-    def to_operation
+    def to_operation(options = {})
       if KNOWN_MESSAGE_OBJECTS.include?(@value.first.class.name)
         @value.first.to_operation
       else
         RAMF::OperationRequest.new :method=>RAMF::Util.method_name(target_uri),
                                    :service=>RAMF::Util.service_name(target_uri),
-                                   :args=>Array(value)
+                                   :args=>Array(value),
+                                   :credentials=>options[:credentials]
       end
     end
     

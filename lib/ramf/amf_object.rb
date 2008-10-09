@@ -29,5 +29,20 @@ module RAMF
       @headers.find {|v| v.name == key.to_s}
     end
     
+    def credentials_header
+      get_header_by_key("Credentials") || {:userid => nil, :password => nil}
+    end
+    
+    def process
+      returning(RAMF::AMFObject.new(:version=>version)) do |response|
+        response.messages = messages.map do |incoming_message|
+          operation = incoming_message.to_operation(:credentials=>credentials_header)
+          RAMF::AMFMessage.new :target_uri=>incoming_message.response_uri + "/onResult",
+                               :response_uri=>"",
+                               :value=>RAMF::OperationProcessor.process(operation, headers)
+        end
+      end
+    end
+    
   end
 end

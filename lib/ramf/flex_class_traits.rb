@@ -6,7 +6,10 @@ module RAMF
     KNOWN_CLASSES = {}
     
     def self.find_ruby_class(name)
-      Object.module_eval(KNOWN_CLASSES[name]) rescue nil
+#      RAILS_DEFAULT_LOGGER.info "name: #{name.to_s.inspect}"
+#      RAILS_DEFAULT_LOGGER.info "KNOWN_CLASSES[name]:#{KNOWN_CLASSES[name.to_s].inspect}"
+#      RAILS_DEFAULT_LOGGER.info "KNOWN_CLASSES:\n#{KNOWN_CLASSES.inspect}"
+      Object.module_eval(KNOWN_CLASSES[name.to_s]) rescue nil
     end
     
     attr_reader :klass, :members, :name

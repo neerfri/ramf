@@ -79,22 +79,25 @@ module RAMF
         end
       end
       
-      def write_utf8_vr(str,stream)
-        writeU29(0x01,stream) && return if str == ""
-        if (index = retrive(:string, str))
+      def write_with_reference_check(group, obj, stream, &block)
+        if (index = retrive(group, obj))
           writeU29(index << 1, stream)
         else
-          store :string, str
+          store group, obj
+          block.call
+        end
+      end
+      
+      def write_utf8_vr(str,stream)
+        return(writeU29(0x01,stream)) if str == ""
+        write_with_reference_check(:string, str, stream) do
           writeU29((str.length << 1) | 1, stream)
           stream.write str
         end
       end
       
       def write_array_type(array, stream)
-        if (index = retrive(:object, array))
-          writeU29(index << 1, stream)
-        else
-          store :object, array
+        write_with_reference_check(:object, array, stream) do
           writeU29A_value(array, stream)
         end
       end
@@ -106,20 +109,12 @@ module RAMF
       end
             
       def writeU29O(object, stream)
-        if (index = retrive(:object, object))
-          #Object has already been writen, write the reference number.
-          writeU29(index << 1, stream)
-        else
-          if (index = retrive(:class, object.class))
-            #Class has already been writen, write the reference number.
-            writeU29((index << 2) | 0x01,stream)
-          else
+        write_with_reference_check(:object, object, stream) do
+          write_with_reference_check(:class, object.class, stream) do
             #We need to write the class traits
-            store :class, object.class
             writeU29O_object_traits(object,stream)
           end
-          #Now write the object
-          store :object, object
+          #Now write the object...
           #write sealed members
           writeU29O_object_members(object, stream)
           #write dynamic members

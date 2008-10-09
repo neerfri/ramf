@@ -20,12 +20,17 @@ require 'ramf/amf_object'
 require 'ramf/amf_header'
 require 'ramf/amf_message'
 require 'ramf/operation_request'
+require 'ramf/operation_processor'
+
 require 'ramf/io/flex_class_signature'
 require 'ramf/flex_objects/flex_anonymous_object'
 require 'ramf/flex_objects/flex_object'
 require 'ramf/flex_objects/acknowledge_message'
+require 'ramf/flex_objects/remoting_message'
 require 'ramf/flex_objects/command_message'
 require 'ramf/flex_objects/byte_array'
+
+
 require 'ramf/io/constants'
 require 'ramf/io/common_read_write'
 require 'ramf/io/place_holder'

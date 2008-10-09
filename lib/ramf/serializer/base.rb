@@ -11,7 +11,7 @@ module RAMF
       
       def write(object, scope = RAMF::Configuration::DEFAULT_SCOPE)
         #write the amf version
-        writeU16(0,@stream)
+        writeU16(@amf_version,@stream)
         writeU16(object.headers.length,@stream)
 #        puts object.inspect
         object.headers.each do |header|

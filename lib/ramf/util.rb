@@ -10,11 +10,20 @@ class RAMF::Util
     end
     
     def method_name(uri)
-       underscore(uri[uri.rindex(".")+1..-1])
+       underscore(uri[uri.rindex(".").to_i+1..-1])
     end
     
     def service_name(uri)
-      uri[0..uri.rindex(".")].split(".").each{|s| s[0..0] = s[0..0].upcase}.join("::")
+      to_ruby_namespace(uri.to_s[0..uri.rindex(".").to_i])
+    end
+    
+    def to_ruby_namespace(str)
+      str.split(".").each{|s| s[0..0] = s[0..0].upcase}.join("::")
+    end
+    
+    def extract_credentials(base64)
+      auth = Base64.decode64(base64).split(':',2)
+      auth.empty? ? nil : {:userid => auth[0], :password => auth[1]}
     end
      
   end
