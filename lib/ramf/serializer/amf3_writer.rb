@@ -149,10 +149,7 @@ module RAMF
       end
       
       def writeU29D(date, stream)
-        if (index = retrive(:object, date))
-          writeU29(index << 1, stream)
-        else
-          store :object, date
+        write_with_reference_check(:object, date, stream) do
           writeU29D_value(date, stream)
         end
       end
@@ -164,24 +161,19 @@ module RAMF
       end
       
       def writeU29X(xml, stream)
-        if (index = retrive(:object, xml))
-          writeU29(index << 1, stream)
-        else
-          store :object, xml
+        write_with_reference_check(:object, xml, stream) do
           writeU29X_value(xml, stream)
         end
       end
       
       def writeU29X_value(xml, stream)
-        writeU29((xml.to_s.length << 1) | 1, stream)
-        stream.write xml.to_s
+        xml_string = xml.to_s
+        writeU29((xml_string.length << 1) | 1, stream)
+        stream.write xml_string
       end
       
       def writeU29B(io, stream)
-        if (index = retrive(:object, io))
-          writeU29(index << 1, stream)
-        else
-          store :object, io
+        write_with_reference_check(:object, io, stream) do
           writeU29B_value(io, stream)
         end
       end
