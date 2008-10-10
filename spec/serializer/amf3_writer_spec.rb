@@ -251,4 +251,152 @@ describe "AMF3Writer" do
     end
     
   end #writeU29O_object_dynamic_members method
+  
+  describe "writeU29O_object_traits method" do
+    before(:each) do
+      @method = @writer.method(:writeU29O_object_traits)
+      @object = {}
+      @object.class.flex_remoting.stub!(:members).and_return([:member1, :member2])
+    end
+    
+    after(:each) {@method.call(@object,@stream)}
+    
+    it 'should write the member count with the dynamic object mask' do
+      @object.class.flex_remoting.stub!(:is_dynamic).and_return(true)
+      @writer.stub!(:write_utf8_vr)
+      @writer.should_receive(:writeU29).with((2 << 4) | 0x0B, @stream)
+    end
+    
+    it 'should write the member count with the non dynamic object mask' do
+      @object.class.flex_remoting.stub!(:is_dynamic).and_return(false)
+      @writer.stub!(:write_utf8_vr)
+      @writer.should_receive(:writeU29).with((2 << 4) | 0x03, @stream)
+    end
+    
+    it 'should write the class name' do
+      @object.class.flex_remoting.stub!(:name).and_return("className")
+      @object.class.flex_remoting.members.stub!(:each)
+      @writer.should_receive(:write_utf8_vr).with("className", @stream)
+    end
+    
+    it 'should write all the member names' do
+      @writer.should_receive(:write_utf8_vr).with(@object.class.flex_remoting.name, @stream)
+      [:member1, :member2].each do |m|
+        @writer.should_receive(:write_utf8_vr).with(m.to_s, @stream)
+      end
+    end
+  end #writeU29O_object_traits method
+  
+  describe "writeU29D method" do
+    before(:each) do
+      @method = @writer.method(:writeU29D)
+      @date = Time.now
+    end
+    
+    after(:each) {@method.call(@date,@stream)}
+    
+    it 'should call write_with_reference_check' do
+      @writer.should_receive(:write_with_reference_check).with(:object, @date, @stream)
+    end
+    
+    it 'should call writeU29D_value when date is not found in reference table' do
+      @writer.should_receive(:writeU29D_value).with(@date, @stream)
+    end
+  end #writeU29D method
+  
+  describe "writeU29D_value method" do
+    before(:each) do
+      @method = @writer.method(:writeU29D_value)
+      @date = Time.now
+    end
+    
+    after(:each) {@method.call(@date,@stream)}
+    
+    it 'should write 1' do
+      @writer.should_receive(:writeU29).with(1, @stream)
+    end
+    
+    it 'should convert time to utc when it is a Time object' do
+      @date.utc.should_receive(:to_i)
+    end
+    
+    it 'should extract time with strftime when it is a Date object' do
+      @date = Date.new
+      @date.should_receive(:strftime).with("%s")
+    end
+    
+    it 'should write the time as double with Time object' do
+      @writer.should_receive(:write_double).with(@date.utc.to_i* 1000, @stream)
+    end
+    
+    it 'should write the time as double with Date object' do
+      @date = Date.today
+      @writer.should_receive(:write_double).with(@date.strftime("%s").to_i* 1000, @stream)
+    end
+  end #writeU29D_value method
+  
+  describe "writeU29X method" do
+    before(:each) do
+      @method = @writer.method(:writeU29X)
+      @xml = REXML::Document.new("")
+    end
+    
+    after(:each) {@method.call(@xml, @stream)}
+    
+    it 'should call write_with_reference_check' do
+      @writer.should_receive(:write_with_reference_check)
+    end
+    
+    it 'should call writeU29X_value when xml is not found in reference table' do
+      @writer.should_receive(:writeU29X_value).with(@xml, @stream)
+    end
+  end #writeU29X method
+  
+  describe "writeU29X_value method" do
+    before(:each) do
+      @method = @writer.method(:writeU29X_value)
+      @xml = REXML::Document.new("<xml><some_tag></some_tag></xml>")
+    end
+    
+    after(:each) {@method.call(@xml, @stream)}
+    
+    it 'should write xml length to stream' do
+      @writer.should_receive(:writeU29).with(45, @stream)
+    end
+    
+    it 'should write the xml as string' do
+      @writer.stub!(:writeU29)
+      @stream.should_receive(:write).with(@xml.to_s)
+    end
+  end #writeU29X_value method
+  
+  describe "writeU29B method" do
+    before(:each) do
+      @method = @writer.method(:writeU29B)
+      @io = StringIO.new("SomeByteArray...")
+    end
+    
+    after(:each) {@method.call(@io, @stream)}
+    
+    it 'should call write_with_reference_check' do
+      @writer.should_receive(:write_with_reference_check).with(:object, @io, @stream)
+    end
+    
+    it 'should call writeU29B_value when io is not found in reference table' do
+      @writer.should_receive(:writeU29B_value).with(@io, @stream)
+    end
+  end #writeU29B method
+  
+  describe "writeU29B_value method" do
+    before(:each) do
+      @method = @writer.method(:writeU29B_value)
+      @io = StringIO.new("SomeByteArray...")
+    end
+    
+    after(:each) {@method.call(@io, @stream)}
+    
+    it 'should write the io length' do
+      @writer.should_receive(:writeU29).with((@io.length << 1) | 1, @stream)
+    end
+  end #writeU29B_value method
 end
