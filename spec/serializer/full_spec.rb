@@ -6,7 +6,7 @@ require 'rexml/document'
 describe RAMF::Serializer::Base do
   
   before(:all) do
-    @serializer = RAMF::Serializer::Base.new(3)
+    @serializer = RAMF::Serializer::Base.new
   end
   
   describe 'header serialization' do
