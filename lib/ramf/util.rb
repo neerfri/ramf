@@ -10,11 +10,11 @@ class RAMF::Util
     end
     
     def method_name(uri)
-       underscore(uri[uri.rindex(".").to_i+1..-1])
+       underscore(uri[rindex_or_value(uri,".",0)..-1])
     end
     
     def service_name(uri)
-      to_ruby_namespace(uri.to_s[0..uri.rindex(".").to_i])
+      to_ruby_namespace(uri.to_s[0..rindex_or_value(uri,".",uri.length)])
     end
     
     def to_ruby_namespace(str)
@@ -24,6 +24,10 @@ class RAMF::Util
     def extract_credentials(base64)
       auth = Base64.decode64(base64).split(':',2)
       auth.empty? ? nil : {:userid => auth[0], :password => auth[1]}
+    end
+    
+    def rindex_or_value(uri, sperator, value)
+      uri.rindex(sperator) || value
     end
      
   end

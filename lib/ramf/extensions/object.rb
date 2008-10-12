@@ -34,4 +34,11 @@ class Object
     instance.send("#{member}=", value)
   end
   
+  unless defined?(returning)
+    def returning(value)
+      yield(value)
+      value
+    end
+  end
+  
 end

@@ -1,3 +1,5 @@
+require 'base64'
+
 class RAMF::FlexObjects::RemotingMessage
   flex_alias 'flex.messaging.messages.RemotingMessage'
   flex_remoting_members :operation, :source, :correlationId, :clientId, 
