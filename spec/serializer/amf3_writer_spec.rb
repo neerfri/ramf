@@ -399,4 +399,167 @@ describe "AMF3Writer" do
       @writer.should_receive(:writeU29).with((@io.length << 1) | 1, @stream)
     end
   end #writeU29B_value method
+  
+  describe "write_value_type method" do
+    before(:each) do
+      @method = @writer.method(:write_value_type)
+      @object = {}
+    end
+    
+    after(:each) {@method.call(@object, @stream)}
+    
+    it "should write AMF3_INTEGER_MARKER for integer in range" do
+      @object = 15
+      @writer.stub!(:writeU29)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_INTEGER_MARKER)
+    end
+    
+    it "should call writeU29 for integer in range" do
+      @object = 15
+      @writer.should_receive(:writeU29).with(@object, @stream)
+    end
+    
+    it "should write AMF3_DOUBLE_MARKER for integer out of U29 range" do
+      @object = 268435460
+      @writer.stub!(:write_double)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_DOUBLE_MARKER)
+    end
+    
+    it "should call write_double for integer out of U29 range" do
+      @object = 268435460
+      @writer.should_receive(:write_double).with(@object, @stream)
+    end
+    
+    it "should write AMF3_DOUBLE_MARKER for floats" do
+      @object = 45.3
+      @writer.stub!(:write_double)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_DOUBLE_MARKER)
+    end
+    
+    it "should call write_double for floats" do
+      @object = 45.3
+      @writer.should_receive(:write_double).with(@object, @stream)
+    end
+    
+    it "should write AMF3_STRING_MARKER for strings" do
+      @object = "my_string"
+      @writer.stub!(:write_utf8_vr)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_STRING_MARKER)
+    end
+    
+    it "should call write_utf8_vr for strings" do
+      @object = "my_string"
+      @writer.should_receive(:write_utf8_vr).with(@object, @stream)
+    end
+    
+    it "should write AMF3_STRING_MARKER for symbols" do
+      @object = :my_symbol
+      @writer.stub!(:write_utf8_vr)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_STRING_MARKER)
+    end
+    
+    it "should call write_utf8_vr for symbols" do
+      @object = :my_symbol
+      @writer.should_receive(:write_utf8_vr).with(@object.to_s, @stream)
+    end
+    
+    it "should write AMF3_NULL_MARKER for nil" do
+      @object = nil
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_NULL_MARKER)
+    end
+    
+    it "should write AMF3_FALSE_MARKER for false" do
+      @object = false
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_FALSE_MARKER)
+    end
+    
+    it "should write AMF3_TRUE_MARKER for true" do
+      @object = true
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_TRUE_MARKER)
+    end
+    
+    it "should write AMF3_DATE_MARKER for Time objects" do
+      @object = Time.now
+      @writer.stub!(:writeU29D)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_DATE_MARKER)
+    end
+    
+    it "should call writeU29D for Time objects" do
+      @object = Time.now
+      @writer.should_receive(:writeU29D).with(@object,@stream)
+    end
+    
+    it "should write AMF3_DATE_MARKER for Date objects" do
+      @object = Date.today
+      @writer.stub!(:writeU29D)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_DATE_MARKER)
+    end
+    
+    it "should call writeU29D for Date objects" do
+      @object = Date.today
+      @writer.should_receive(:writeU29D).with(@object,@stream)
+    end
+    
+    it "should write AMF3_DATE_MARKER for DateTime objects" do
+      @object = DateTime.new
+      @writer.stub!(:writeU29D)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_DATE_MARKER)
+    end
+    
+    it "should call writeU29D for DateTime objects" do
+      @object = DateTime.new
+      @writer.should_receive(:writeU29D).with(@object,@stream)
+    end
+    
+    it "should write AMF3_ARRAY_MARKER for Array objects" do
+      @object = []
+      @writer.stub!(:write_array_type)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_ARRAY_MARKER)
+    end
+    
+    it "should call writeU29D for DateTime objects" do
+      @object = []
+      @writer.should_receive(:write_array_type).with(@object,@stream)
+    end
+    
+    it "should write AMF3_XML_STRING_MARKER for REXML::Document objects" do
+      @object = REXML::Document.new
+      @writer.stub!(:writeU29X)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_XML_STRING_MARKER)
+    end
+    
+    it "should call writeU29X for REXML::Document objects" do
+      @object = REXML::Document.new
+      @writer.should_receive(:writeU29X).with(@object,@stream)
+    end
+    
+    it "should write AMF3_BYTE_ARRAY_MARKER for StringIO objects" do
+      @object = StringIO.new
+      @writer.stub!(:writeU29B)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_BYTE_ARRAY_MARKER)
+    end
+    
+    it "should call writeU29B for StringIO objects" do
+      @object = StringIO.new
+      @writer.should_receive(:writeU29B).with(@object,@stream)
+    end
+    
+    it "should write AMF3_BYTE_ARRAY_MARKER for File objects" do
+      @object.stub!(:is_a?).and_return(false)
+      @object.stub!(:is_a?).with(::IO).and_return(true)
+      @writer.stub!(:writeU29B)
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_BYTE_ARRAY_MARKER)
+    end
+    
+    it "should call writeU29B for File objects" do
+      @object.stub!(:is_a?).and_return(false)
+      @object.stub!(:is_a?).with(::IO).and_return(true)
+      @writer.should_receive(:writeU29B).with(@object,@stream)
+    end
+    
+    it "should write hash as an object" do
+      @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_OBJECT_MARKER)
+      @writer.should_receive(:writeU29O).with(@object, @stream)
+    end
+  end
 end
