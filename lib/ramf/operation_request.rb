@@ -19,7 +19,6 @@ class RAMF::OperationRequest
   end
   
   #generate a response for that operation request
-  #at the moment only works for ping operations
   def response(value = nil)
     if messaging?
       if ping?
@@ -29,7 +28,7 @@ class RAMF::OperationRequest
       end
     else
       #Non messaging
-      raise "only messaging is implemented"
+      value
     end
   end
   
