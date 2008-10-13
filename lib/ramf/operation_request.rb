@@ -18,6 +18,14 @@ class RAMF::OperationRequest
     !messageId.nil?
   end
   
+  def remoting_message?
+    messaging? && !operation
+  end
+  
+  def login?
+    operation == RAMF::FlexObjects::CommandMessage::LOGIN_OPERATION
+  end
+  
   #generate a response for that operation request
   def response(value = nil)
     if messaging?
@@ -29,6 +37,14 @@ class RAMF::OperationRequest
     else
       #Non messaging
       value
+    end
+  end
+  
+  def exception_response(exception)
+    if messaging?
+      RAMF::FlexObjects::ErrorMessage.new :correlationId=>messageId, :exception=>exception
+    else
+      exception
     end
   end
   
