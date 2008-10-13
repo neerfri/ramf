@@ -18,7 +18,10 @@ unless defined?(RAMF_SPEC_HELPER)
     end
     
     def self.process(operation)
-      "#{operation.service}.#{operation.method} says hi with args: #{operation.args.inspect}"
+      #this is used to check the existence of credentials
+      hello = operation.credentials[:userid] ? "Hello, #{operation.credentials[:userid]}, " : ""
+      #this is to check other operation parameters
+      hello << "#{operation.service}.#{operation.method} says hi with args: #{operation.args.inspect}"
     end
   end
   
