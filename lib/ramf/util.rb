@@ -10,7 +10,7 @@ class RAMF::Util
     end
     
     def method_name(uri)
-       underscore(uri[rindex_or_value(uri,".",0)..-1])
+       underscore(uri[rindex_or_value(uri,".",-1)+1..-1])
     end
     
     def service_name(uri)
