@@ -44,7 +44,7 @@ module RAMF
           rescue RAMF::OperationProcessorsManger::ErrorWhileProcessing => e
             RAMF::AMFMessage.new :target_uri=>incoming_message.response_uri + "/onStatus",
                                  :response_uri=>"",
-                                 :value=> e.original_exception
+                                 :value=> operation.exception_response(e.original_exception)
           end
         end
       end
