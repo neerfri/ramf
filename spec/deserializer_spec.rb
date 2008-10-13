@@ -1,5 +1,4 @@
 require File.join(File.dirname(__FILE__),'spec_helper')
-AMF_EXAMPLE_DIR = File.join(File.dirname(__FILE__),'example_amf_messages')
 
 describe RAMF::Deserializer do
   
