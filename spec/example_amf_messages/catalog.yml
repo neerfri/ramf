@@ -2,3 +2,4 @@
 :simple_remoting: simple_remoting_message.amf
 :ping_command: ping_command_message.amf
 :simple_amf1: deserializer1.bin
+:remoting_login_operation: remoting_login_operation.amf
