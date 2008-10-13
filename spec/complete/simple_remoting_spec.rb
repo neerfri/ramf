@@ -61,7 +61,7 @@ describe "RAMF" do
             it('should declare amf_version 3') {@message.amf_version.should == 3}
             it('should declare length -1') {@message.length.should == -1}
             it('should declare response_uri ""') {@message.response_uri.should == ""}
-            it('should declare target_uri "/2/onStatus"') {@message.target_uri.should == "/2/onResult"}
+            it('should declare target_uri "/2/onResult"') {@message.target_uri.should == "/2/onResult"}
             
             describe "value" do
               before(:all) {@value = @message.value}
