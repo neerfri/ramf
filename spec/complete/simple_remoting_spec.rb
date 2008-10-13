@@ -80,13 +80,3 @@ describe "RAMF" do
   end #RAMF simple_remoting_example
   
 end #RAMF
-
-class SpecOperationProcessor
-  def self.will_process?(operation)
-    true
-  end
-  
-  def self.process(operation)
-    "#{operation.service}.#{operation.method} says hi with args: #{operation.args.inspect}"
-  end
-end
