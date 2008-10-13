@@ -138,7 +138,6 @@ module RAMF
       end
       
       def load_or_create_class(class_signature)
-#        RAILS_DEFAULT_LOGGER.info "class_signature.name:#{class_signature.name.inspect}"
         return RAMF::FlexClassTraits.find_ruby_class(class_signature.name) if RAMF::FlexClassTraits.find_ruby_class(class_signature.name)
         class_name = class_signature.name.to_s.split(".").each{|s| s[0,1]=s[0,1].upcase}.join("::")
         unless class_name=="" || (/\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/ =~ class_name)
