@@ -23,6 +23,7 @@ class RAMF::OperationProcessorsManger
     end
     
     def add_operation_processor(processor)
+      OPERATION_PROCCESSORS.delete(processor)
       OPERATION_PROCCESSORS.unshift(processor)
     end
   end
