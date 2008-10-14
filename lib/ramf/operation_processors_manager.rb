@@ -11,10 +11,10 @@ class RAMF::OperationProcessorsManger
   end
   
   class << self
-    def process(operation, headers)
+    def process(operation, headers, processor)
       return operation.response if operation.ping?
       #invoke action
-      processor = OPERATION_PROCCESSORS.find {|p| p.will_process?(operation)}
+      processor ||= OPERATION_PROCCESSORS.find {|p| p.will_process?(operation)}
       begin
         operation.response(processor.process(operation))
       rescue Exception=>e
