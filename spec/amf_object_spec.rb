@@ -6,7 +6,7 @@ describe RAMF::AMFObject do
   end
   
   describe "process method" do
-    before(:each) do 
+    before(:each) do
       @operation1 = stub("OperationRequest1")
       @operation2 = stub("OperationRequest2")
       @message1 = stub("AMFMessage", :to_operation=>@operation1, :response_uri=>"1")
@@ -48,6 +48,7 @@ describe RAMF::AMFObject do
       it "should contain one message with Exception when exception was raised in processing" do
         exception = RAMF::OperationProcessorsManger::ErrorWhileProcessing.new("", StandardError.new)
         RAMF::OperationProcessorsManger.should_receive(:process).with(@operation1, []).and_raise(exception)
+        @operation1.should_receive(:exception_response).and_return(StandardError.new)
         messages = @method.call.messages.select{|m| m.target_uri[-8,8] == "onStatus"}
         messages.size.should == 1
         messages.first.should_not be_nil
