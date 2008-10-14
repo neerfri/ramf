@@ -33,14 +33,14 @@ module RAMF
       (header = get_header_by_key("Credentials")) ? header.value : {:userid => nil, :password => nil}
     end
     
-    def process
+    def process(processor)
       returning(RAMF::AMFObject.new(:version=>version)) do |response|
         response.messages = messages.map do |incoming_message|
           operation = incoming_message.to_operation(:credentials=>credentials_header)
           begin
             RAMF::AMFMessage.new :target_uri=>incoming_message.response_uri + "/onResult",
                                  :response_uri=>"",
-                                 :value=>RAMF::OperationProcessorsManger.process(operation, headers)
+                                 :value=>RAMF::OperationProcessorsManger.process(operation, headers, processor)
           rescue RAMF::OperationProcessorsManger::ErrorWhileProcessing => e
             RAMF::AMFMessage.new :target_uri=>incoming_message.response_uri + "/onStatus",
                                  :response_uri=>"",
