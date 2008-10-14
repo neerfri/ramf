@@ -4,7 +4,7 @@ require 'yaml'
 
 unless defined?(RAMF_SPEC_HELPER)
   RAMF_SPEC_HELPER = true
-  AMF_EXAMPLE_DIR = File.join(File.dirname(__FILE__), "example_amf_messages")
+  AMF_EXAMPLE_DIR = File.join(File.dirname(__FILE__), "fixtures")
   AMF_EXAMPLE_FILES = YAML.load_file(File.join(AMF_EXAMPLE_DIR, "catalog.yml"))
   
   
