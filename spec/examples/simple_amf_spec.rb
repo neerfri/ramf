@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__),'../spec_helper')
+require File.join(File.dirname(__FILE__),'examples_helper')
 include RAMF
-
-require 'ruby-debug'
+include ExampleHelper
 
 describe "RAMF" do
   
@@ -12,17 +12,12 @@ describe "RAMF" do
       work_with_example(:simple_amf1) do |f|
         @deserializer = Deserializer::Base.new(f)
         @incoming_amf_object = @deserializer.process
-        OperationProcessorsManger.add_operation_processor(SpecOperationProcessor)
+        OperationProcessorsManger.add_operation_processor(ExampleHelper::OperationProcessor)
       end
     end
     
     describe "incoming_amf_object" do
-      it('should be_an_instance_of(AMFObject)') {@incoming_amf_object.should be_an_instance_of(AMFObject)}
-      it('should have 1 header') {@incoming_amf_object.headers.size.should == 1}
-      it('should have 1 message') { @incoming_amf_object.messages.size.should == 1 }
-      it('should declare amf version 0') { @incoming_amf_object.version.should == 0 }
-      it('should declare client 3') { @incoming_amf_object.client.should == 3 }
-      
+      incoming_amf_object_examples(:headers=>1, :messages=>1)
       
       describe "first_header" do
         before(:all) {@header = @incoming_amf_object.headers.first}
@@ -35,34 +30,19 @@ describe "RAMF" do
       
       describe "first_message" do
         before(:all) {@message = @incoming_amf_object.messages.first}
-        it("should be an instance of AMFMessage"){ @message.should be_an_instance_of(AMFMessage)}
+        incoming_amf_object_message_examples(:response_uri=>"/1", :length=>23, :target_uri=>"AdminController.testMethod")
         it('should declare value ["param1", "param2"]') { @message.value.should == ["param1", "param2"]}
-        it('should declare target_uri "AdminController.testMethod"') { @message.target_uri.should == "AdminController.testMethod"}
-        it('should declare amf_version 3') { @message.amf_version.should == 3}
-        it('should declare response_uri "/1"') { @message.response_uri.should == "/1"}
-        it('should declare length 23') { @message.length.should == 23}
-        
       end
-      
       
       describe "processed_incoming_amf_object" do
         before(:all) {@processed_incoming_amf_object = @incoming_amf_object.process}
-        it('should be an instance of AMFObject') {@processed_incoming_amf_object.should be_an_instance_of(AMFObject)}
-        it('should declare version 0') {@processed_incoming_amf_object.version.should == 0}
-        it('should declare client 3') {@processed_incoming_amf_object.client.should == 3}
-        it('should declare headers []') {@processed_incoming_amf_object.headers.should == []}
-        it('should have 1 message') {@processed_incoming_amf_object.messages.size.should == 1}
+        processed_incoming_amf_object_examples
         
         describe "message" do
-            
           before(:all) {@message = @processed_incoming_amf_object.messages.first}
-          it('should be an instance of AMFMessage') {@message.should be_an_instance_of(AMFMessage)}
-          it('should declare amf_version 3') {@message.amf_version.should == 3}
-          it('should declare length -1') {@message.length.should == -1}
-          it('should declare response_uri ""') {@message.response_uri.should == ""}
-          it('should declare target_uri "/1/onResult"') {@message.target_uri.should == "/1/onResult"}
-          it('should declare value "Hello, 13, AdminController.test_method says hi with args: [\"param1\", \"param2\"]"') {
-                            @message.value.should == "Hello, 13, AdminController.test_method says hi with args: [\"param1\", \"param2\"]"}
+          processed_incoming_amf_object_message_examples(:target_uri=>"/1/onResult")
+          it('should declare value "SimpleAMF: AdminController.test_method with credentials {:password=>\"1234\", :userid=>\"13\"}"') {
+                            @message.value.should == "SimpleAMF: AdminController.test_method with credentials {:password=>\"1234\", :userid=>\"13\"}"}
           
         end #RAMF simple_amf_example incoming_amf_object processed_incoming_amf_object message
         
