@@ -33,7 +33,7 @@ module RAMF
       (header = get_header_by_key("Credentials")) ? header.value : {:userid => nil, :password => nil}
     end
     
-    def process(processor)
+    def process(processor = nil)
       returning(RAMF::AMFObject.new(:version=>version)) do |response|
         response.messages = messages.map do |incoming_message|
           operation = incoming_message.to_operation(:credentials=>credentials_header)
