@@ -110,7 +110,11 @@ module RAMF
             
       def writeU29O(object, stream)
         write_with_reference_check(:object, object, stream) do
-          write_with_reference_check(:class, object.class, stream) do
+          if (index = retrive(:class, object.class))
+            #Class has already been writen, write the reference number.
+            writeU29((index << 2) | 0x01,stream)
+          else
+            store(:class, object.class)  
             #We need to write the class traits
             writeU29O_object_traits(object,stream)
           end
