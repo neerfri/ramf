@@ -1,4 +1,4 @@
-class RAMF::OperationProcessorsManger
+class RAMF::OperationProcessorsManager
   OPERATION_PROCCESSORS = []
   
   #A wrapper class to let our caller know we had problems in processing the operation request
@@ -11,14 +11,14 @@ class RAMF::OperationProcessorsManger
   end
   
   class << self
-    def process(operation, headers, processor)
+    def process(operation, *processor_args)
       return operation.response if operation.ping?
       #invoke action
-      processor ||= OPERATION_PROCCESSORS.find {|p| p.will_process?(operation)}
+      processor = OPERATION_PROCCESSORS.find {|p| p.will_process?(operation, *processor_args)}
       begin
-        operation.response(processor.process(operation))
+        operation.response(processor.process(operation, *processor_args))
       rescue Exception=>e
-        raise ErrorWhileProcessing.new("Exception raise while tring to process operation with #{processor}", e)
+        raise ErrorWhileProcessing.new("Exception raised while tring to process operation with #{processor}", e)
       end
     end
     

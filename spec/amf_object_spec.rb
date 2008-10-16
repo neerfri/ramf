@@ -13,14 +13,21 @@ describe RAMF::AMFObject do
       @message2 = stub("AMFMessage", :to_operation=>@operation2, :response_uri=>"2")
       @amf_object.add_message(@message1)
       @amf_object.add_message(@message2)
-      RAMF::OperationProcessorsManger.stub!(:process).with(@operation1, [], nil).and_return(1)
-      RAMF::OperationProcessorsManger.stub!(:process).with(@operation2, [], nil).and_return(2)
+      RAMF::OperationProcessorsManager.stub!(:process).with(@operation1).and_return(1)
+      RAMF::OperationProcessorsManager.stub!(:process).with(@operation2).and_return(2)
       @method = @amf_object.method(:process)
     end
     
+    it 'should pass additional arguments to OperationProcessorsManager#process' do
+      @arg1 = mock("arg1"); @arg2 = mock("arg2")
+      RAMF::OperationProcessorsManager.should_receive(:process).with(@operation1, @arg1, @arg2)
+      RAMF::OperationProcessorsManager.should_receive(:process).with(@operation2, @arg1, @arg2)
+      @method.call(@arg1, @arg2)
+    end
+    
     it "should call RAMF::OperationProcessor.process to process the OperationRequest" do
-      RAMF::OperationProcessorsManger.should_receive(:process).with(@operation1, [], nil)
-      RAMF::OperationProcessorsManger.should_receive(:process).with(@operation2, [], nil)
+      RAMF::OperationProcessorsManager.should_receive(:process).with(@operation1)
+      RAMF::OperationProcessorsManager.should_receive(:process).with(@operation2)
       @method.call
     end
     
@@ -46,8 +53,8 @@ describe RAMF::AMFObject do
       end
       
       it "should contain one message with Exception when exception was raised in processing" do
-        exception = RAMF::OperationProcessorsManger::ErrorWhileProcessing.new("", StandardError.new)
-        RAMF::OperationProcessorsManger.should_receive(:process).with(@operation1, [], nil).and_raise(exception)
+        exception = RAMF::OperationProcessorsManager::ErrorWhileProcessing.new("", StandardError.new)
+        RAMF::OperationProcessorsManager.should_receive(:process).with(@operation1).and_raise(exception)
         @operation1.should_receive(:exception_response).and_return(StandardError.new)
         messages = @method.call.messages.select{|m| m.target_uri[-8,8] == "onStatus"}
         messages.size.should == 1

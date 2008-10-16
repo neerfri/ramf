@@ -10,7 +10,7 @@ describe "RAMF" do
       work_with_example(:simple_remoting) do |f|
         @deserializer = Deserializer::Base.new(f)
         @incoming_amf_object = @deserializer.process
-        OperationProcessorsManger.add_operation_processor(ExampleHelper::OperationProcessor)
+        OperationProcessorsManager.add_operation_processor(ExampleHelper::OperationProcessor)
       end
     end
     

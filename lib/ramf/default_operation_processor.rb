@@ -2,7 +2,7 @@ class RAMF::DefaultOperationProcessor
   class OperationProcessorNotDefined <StandardError; end;
   
   #Add self to the operation processors manger list
-  RAMF::OperationProcessorsManger.add_operation_processor(self)
+  RAMF::OperationProcessorsManager.add_operation_processor(self)
   
   
   class << self
