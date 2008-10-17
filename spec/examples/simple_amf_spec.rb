@@ -42,7 +42,7 @@ describe "RAMF" do
           before(:all) {@message = @processed_incoming_amf_object.messages.first}
           processed_incoming_amf_object_message_examples(:target_uri=>"/1/onResult")
           it('should declare value "SimpleAMF: AdminController.test_method with credentials {:password=>\"1234\", :userid=>\"13\"}"') {
-                            @message.value.should == "SimpleAMF: AdminController.test_method with credentials {:password=>\"1234\", :userid=>\"13\"}"}
+                            @message.value.should == "SimpleAMF: AdminController.test_method with credentials #{{:password=>"1234", :userid=>"13"}.inspect}"}
           
         end #RAMF simple_amf_example incoming_amf_object processed_incoming_amf_object message
         

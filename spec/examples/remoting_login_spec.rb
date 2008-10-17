@@ -43,10 +43,10 @@ describe "RAMF" do
             
             describe "value" do
               before(:all) {@value = @message.value}
-              processed_incoming_amf_object_message_value_examples(:body=>"Logging in with credentials {:password=>\"myPassword\", :userid=>\"myUsername\"}",
+              processed_incoming_amf_object_message_value_examples(:body=>"Logging in with credentials #{{:password=>"myPassword", :userid=>"myUsername"}.inspect}",
                                                                    :correlationId=>"231F8134-8454-9184-252F-F6ED9FF51A01")
             end
-          end #RAMF remoting_login incoming_amf_object processed_incoming_amf_object message
+          end #RAMF remoting_login incoming_amf_object processed_incoming_amf_object message 
         end #RAMF remoting_login incoming_amf_object processed_incoming_amf_object
       end #RAMF remoting_login incoming_amf_object
   end #RAMF remoting_login
