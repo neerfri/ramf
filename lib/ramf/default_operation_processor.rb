@@ -8,12 +8,12 @@ class RAMF::DefaultOperationProcessor
   class << self
     
     #This processor answers all requests, so it will always return true
-    def will_process?(operation)
+    def will_process?(operation, *args)
       true
     end
     
     #raise a fault saying there is no processor to handle the operation. 
-    def process(operation)
+    def process(operation, *args)
       raise(OperationProcessorNotDefined, "No Operation processor found to process #{operation.inspect}")
     end
   end
