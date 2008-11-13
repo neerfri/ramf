@@ -12,8 +12,7 @@ GEM_SPEC = Gem::Specification.new do |s|
   s.require_path = "lib"
   s.test_files = FileList["{spec}/**/*"].to_a
   s.has_rdoc = true
-  s.rdoc_options << '--line-numbers' << '--inline-source'
-  s.extra_rdoc_files = ["README"]
+  s.rdoc_options << ['--line-numbers', '--inline-source', '--main README ', '-x spec', 'README']
 end
  
 
