@@ -2,45 +2,49 @@
 $:.unshift(File.dirname(__FILE__)) unless $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 module RAMF
   
+  def self.relative_require(name)
+    require File.join(File.dirname(__FILE__), name+".rb")
+  end
+  
   #load requirements from ruby
   require 'stringio'
 
   #Load configuration class
-  require 'ramf/util'
-  require 'ramf/configuration'
+  relative_require 'ramf/util'
+  relative_require 'ramf/configuration'
   
   
   #Extensions to existing Ruby classes.
-  require 'ramf/flex_class_traits'
-  require 'ramf/extensions/class'
-  require 'ramf/extensions/object'
-  require 'ramf/extensions/hash'
-  require 'ramf/extensions/exception'
+  relative_require 'ramf/flex_class_traits'
+  relative_require 'ramf/extensions/class'
+  relative_require 'ramf/extensions/object'
+  relative_require 'ramf/extensions/hash'
+  relative_require 'ramf/extensions/exception'
   
   #RAMF fundemental objects
-  require 'ramf/amf_object'
-  require 'ramf/amf_header'
-  require 'ramf/amf_message'
-  require 'ramf/operation_request'
-  require 'ramf/operation_processors_manager'
-  require 'ramf/default_operation_processor'
+  relative_require 'ramf/amf_object'
+  relative_require 'ramf/amf_header'
+  relative_require 'ramf/amf_message'
+  relative_require 'ramf/operation_request'
+  relative_require 'ramf/operation_processors_manager'
+  relative_require 'ramf/default_operation_processor'
   
-  require 'ramf/io/flex_class_signature'
-  require 'ramf/flex_objects/flex_anonymous_object'
-  require 'ramf/flex_objects/flex_object'
-  require 'ramf/flex_objects/acknowledge_message'
-  require 'ramf/flex_objects/error_message'
-  require 'ramf/flex_objects/remoting_message'
-  require 'ramf/flex_objects/command_message'
-  require 'ramf/flex_objects/byte_array'
+  relative_require 'ramf/io/flex_class_signature'
+  relative_require 'ramf/flex_objects/flex_anonymous_object'
+  relative_require 'ramf/flex_objects/flex_object'
+  relative_require 'ramf/flex_objects/acknowledge_message'
+  relative_require 'ramf/flex_objects/error_message'
+  relative_require 'ramf/flex_objects/remoting_message'
+  relative_require 'ramf/flex_objects/command_message'
+  relative_require 'ramf/flex_objects/byte_array'
   
   
-  require 'ramf/io/constants'
-  require 'ramf/io/common_read_write'
-  require 'ramf/io/place_holder'
-  require 'ramf/io/reference_table'
-  require 'ramf/deserializer'
-  require 'ramf/serializer'
+  relative_require 'ramf/io/constants'
+  relative_require 'ramf/io/common_read_write'
+  relative_require 'ramf/io/place_holder'
+  relative_require 'ramf/io/reference_table'
+  relative_require 'ramf/deserializer'
+  relative_require 'ramf/serializer'
 
 end
   
