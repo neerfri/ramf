@@ -46,6 +46,8 @@ module RAMF
           when object.is_a?(::IO) || object.is_a?(::StringIO)
             stream.write AMF3_BYTE_ARRAY_MARKER
             writeU29B(object, stream)
+          when object.is_a?(Class) || object.is_a?(Module)
+            raise(ArgumentError, "Trying to serialize #{object}, which is a Class or Module")
           else
             stream.write AMF3_OBJECT_MARKER
             writeU29O(object,stream)

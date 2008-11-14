@@ -406,7 +406,7 @@ describe "AMF3Writer" do
       @object = {}
     end
     
-    after(:each) {@method.call(@object, @stream)}
+    after(:each) {(!@skip_call) ? @method.call(@object, @stream) : @skip_call=false}
     
     it "should write AMF3_INTEGER_MARKER for integer in range" do
       @object = 15
@@ -561,5 +561,12 @@ describe "AMF3Writer" do
       @stream.should_receive(:write).with(RAMF::IO::Constants::AMF3_OBJECT_MARKER)
       @writer.should_receive(:writeU29O).with(@object, @stream)
     end
+    
+    it "should raise when trying to serialize an object of type Class or Module" do
+      @skip_call = true
+      @object = RAMF
+      lambda {@method.call(@object, @stream)}.should raise_error(ArgumentError)
+    end
+    
   end
 end
