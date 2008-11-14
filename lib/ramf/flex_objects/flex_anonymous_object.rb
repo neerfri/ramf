@@ -25,7 +25,26 @@ module RAMF
         else
           self["#{method_name}".to_sym]
         end
+    end
+    
+    def to_params
+      self.inject({}) do |m,pair|
+        key = pair.first
+        object = pair.last
+        case object
+          when Hash, Numeric, String, TrueClass, FalseClass, NilClass
+            m.merge({key=>object})
+          else
+            flex_remoting = object.class.flex_remoting
+            hash = {}
+            flex_remoting.members.each do |member|
+              hash[member] = flex_remoting.members_reader.call(object,member)
+            end
+            hash.merge!(flex_remoting.dynamic_members(object)) if flex_remoting.is_dynamic
+            m.merge! key=>hash
+        end
       end
+    end
       
       
 #      def flex_dynamic_members(scope = :default)
