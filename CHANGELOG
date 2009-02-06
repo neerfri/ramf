@@ -1,5 +1,7 @@
 * 0.1.2 *
- * transient members are now also removed from amf scope :only (fix in FlexClassTraits)
+ * Added more known simple classes that don't need conversion in FlexAnonymousObject#to_params
+ * Added ReferenceTableUser#key_of(object), fix bug with PlaceHolder
+ * Bug fix: ByteArray objects not counted in reference
 
 * 0.1.1 *
  * added FlexAnonymousObject#to_params to convert it to hash recursively
