@@ -124,8 +124,10 @@ module RAMF
       end
       
       def readU29O_object_values(stream,class_signature)
-        store :object do
-          object = load_or_create_object(class_signature)
+        object = store :object do
+          load_or_create_object(class_signature)
+        end
+        store :object, key_of(:object, object) do
           read_object_member_values(stream,class_signature,object)
           read_object_dynamic_members(stream, object) if class_signature.is_dynamic
           object

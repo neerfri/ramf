@@ -44,14 +44,21 @@ module RAMF
         reference_table = instance_variable_get(var_name)
         current_index = reference_table.length
         key = fixed_key ? fixed_key : current_index
-        reference_table[key] = PlaceHolder.new #put a stub place holder in case we need it 
-        reference_table[key] = fixed_key ? current_index : block.call
+        reference_table[key] = PlaceHolder.new if !reference_table.has_key?(key) #put a stub place holder in case we need it
+        reference_table[key] = (!block_given? ? current_index : block.call)
       end
       
       def retrive(group, key)
         var_name = "@#{group.to_s}_references"
         reference_table = instance_variable_get(var_name)
         reference_table[key]
+      end
+
+      def key_of(group, value)
+        var_name = "@#{group.to_s}_references"
+        reference_table = instance_variable_get(var_name)
+        pair = reference_table.find{|k,v| v == value}
+        pair ? pair.first : nil
       end
     end
     
@@ -68,7 +75,10 @@ module RAMF
       def retrive(*args, &block)
         @reference_table.retrive(*args, &block)
       end
+
+      def key_of(*args, &block)
+        @reference_table.key_of(*args, &block)
+      end
     end
   end
 end
-    
