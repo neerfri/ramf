@@ -32,7 +32,8 @@ module RAMF
         key = pair.first
         object = pair.last
         case object
-          when Hash, Numeric, String, TrueClass, FalseClass, NilClass
+          when Hash, Numeric, String, TrueClass, FalseClass, \
+               NilClass, Array, Symbol, Date, Time, IO, Tempfile, StringIO
             m.merge({key=>object})
           else
             flex_remoting = object.class.flex_remoting
